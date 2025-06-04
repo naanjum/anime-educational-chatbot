@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Diagnostics</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            background-color: #f5f7fa;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #004754;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status.warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 8px 16px;
+            background-color: #004754;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .back-link:hover {
+            background-color: #003540;
+        }
+        pre {
+            background: #f1f1f1;
+            border-left: 3px solid #004754;
+            padding: 15px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Database Diagnostics</h1>
+        
+        <div class="section">
+            <h2>Database Connection</h2>
+            <p><strong>Database Type:</strong> {{ db_info.db_type }}</p>
+            <p><strong>Connection URI:</strong> {{ db_info.connection_uri }}</p>
+            
+            <div class="status {{ 'success' if db_info.users_count > 0 else 'error' }}">
+                {{ 'Connected' if db_info.users_count > 0 else 'Connection Error' }}
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>Database Statistics</h2>
+            <p><strong>Users Count:</strong> {{ db_info.users_count }}</p>
+            <p><strong>Messages Count:</strong> {{ db_info.messages_count }}</p>
+        </div>
+        
+        <div class="section">
+            <h2>Current User Information</h2>
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <td>{{ db_info.current_user.id }}</td>
+                </tr>
+                <tr>
+                    <th>Username</th>
+                    <td>{{ db_info.current_user.username }}</td>
+                </tr>
+                <tr>
+                    <th>Email</th>
+                    <td>{{ db_info.current_user.email }}</td>
+                </tr>
+                <tr>
+                    <th>Admin</th>
+                    <td>{{ 'Yes' if db_info.current_user.is_admin else 'No' }}</td>
+                </tr>
+                <tr>
+                    <th>Password Hash</th>
+                    <td>
+                        {{ 'Present' if db_info.current_user.has_password_hash else 'Missing' }}
+                        (Length: {{ db_info.current_user.hash_length }})
+                    </td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="section">
+            <h2>User Sample (Limited to 10)</h2>
+            {% if db_info.user_sample is defined %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Has Password</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in db_info.user_sample %}
+                            <tr>
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ 'Yes' if user.has_password else 'No' }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="status error">Error: {{ db_info.user_sample_error }}</p>
+            {% endif %}
+        </div>
+        
+        <a href="{{ url_for('admin_dashboard') }}" class="back-link">Back to Admin Dashboard</a>
+    </div>
+</body>
+</html> 

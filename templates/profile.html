@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Anime Educational Chatbot</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile_frames.css') }}">
+    <style>
+        :root {
+            --primary-color: #8e44ad;
+            --primary-light: #9b59b6;
+            --secondary-color: #3498db;
+            --accent-color: #f1c40f;
+            --text-color: #333;
+            --light-bg: #f9f9f9;
+            --white: #ffffff;
+            --border-radius: 12px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: url("{{ url_for('static', filename='background.jpg') }}") no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+            flex: 1;
+        }
+        
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .back-button {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        nav {
+            background-color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-items {
+            display: flex;
+            justify-content: space-around;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .nav-item a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+        
+        .nav-item.active a, .nav-item a:hover {
+            color: var(--primary-color);
+        }
+        
+        .nav-item i {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .main-content {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin-top: 20px;
+        }
+        
+        .profile-section {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+        
+        .profile-photo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .photo-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin-bottom: 20px;
+        }
+        
+        .profile-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: var(--shadow);
+        }
+        
+        .profile-frame {
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            width: calc(100% + 30px);
+            height: calc(100% + 30px);
+            z-index: 2;
+            pointer-events: none;
+        }
+        
+        .change-photo-btn, .save-photo-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .change-photo-btn:hover, .save-photo-btn:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+        
+        .profile-details {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .detail-section {
+            padding: 20px;
+            background-color: var(--light-bg);
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary-light);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+        
+        .form-group input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(142, 68, 173, 0.1);
+        }
+        
+        .save-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+        
+        .save-btn:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+        
+        .frames-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .frame-option {
+            cursor: pointer;
+            position: relative;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid transparent;
+            transition: var(--transition);
+        }
+        
+        .frame-option.selected {
+            border-color: var(--primary-color);
+            transform: scale(1.1);
+        }
+        
+        .frame-option img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .frame-option:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .frame-preview {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+        
+        .achievement-section {
+            margin-top: 30px;
+        }
+        
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .achievement-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 15px 10px;
+            background-color: var(--light-bg);
+            border-radius: 10px;
+            transition: var(--transition);
+        }
+        
+        .achievement-badge.earned {
+            background-color: rgba(142, 68, 173, 0.1);
+        }
+        
+        .achievement-badge i {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #aaa;
+        }
+        
+        .achievement-badge.earned i {
+            color: var(--primary-color);
+        }
+        
+        .achievement-badge p {
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+        }
+        
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .default-avatar {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e0e0e0;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: var(--shadow);
+        }
+        
+        .default-avatar i {
+            font-size: 100px;
+            color: #9e9e9e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="{{ url_for('chat_page') }}" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1>My Profile</h1>
+            <p>Customize your profile and check your achievements</p>
+        </div>
+        
+        <nav>
+            <div class="nav-items">
+                <div class="nav-item">
+                    <a href="{{ url_for('chat_page') }}">
+                        <i class="fas fa-comment"></i>
+                        <span>Chat</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ url_for('progress_tracker') }}">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Progress</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ url_for('games_page') }}">
+                        <i class="fas fa-gamepad"></i>
+                        <span>Games</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ url_for('create_image') }}">
+                        <i class="fas fa-image"></i>
+                        <span>Create Images</span>
+                    </a>
+                </div>
+                <div class="nav-item active">
+                    <a href="{{ url_for('profile') }}">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Profile</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+        
+        <div class="main-content">
+            <form id="profile-form" action="{{ url_for('profile') }}" method="POST" enctype="multipart/form-data">
+                <div class="profile-section">
+                    <div class="profile-photo">
+                        <div class="photo-container">
+                            {% if current_user.profile_pic %}
+                                <img src="{{ url_for('static', filename=current_user.profile_pic) }}" alt="Profile Picture" class="profile-image" id="profile-image">
+                            {% else %}
+                                <div class="default-avatar">
+                                    <i class="fas fa-user-circle"></i>
+                                </div>
+                            {% endif %}
+                            {% set frame_path = 'images/frames/' + (current_user.profile_frame or 'none.png') %}
+                            <img src="{{ url_for('static', filename=frame_path) }}" alt="Profile Frame" class="profile-frame" id="profile-frame" onerror="this.style.display='none'">
+                        </div>
+                        
+                        <label for="profile-pic-upload" class="change-photo-btn">
+                            <i class="fas fa-camera"></i> Change Photo
+                        </label>
+                        <input type="file" id="profile-pic-upload" name="profile_pic" accept="image/*" style="display: none;">
+                        
+                        <button type="submit" class="save-photo-btn" id="save-photo-btn" style="display: none;">
+                            <i class="fas fa-save"></i> Save Photo
+                        </button>
+                        
+                        <div class="username">
+                            <h3>{{ current_user.name or current_user.username }}</h3>
+                            <p>Member since {{ current_user.date_registered.strftime('%B %d, %Y') }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-details">
+                        <div class="detail-section">
+                            <h3 class="section-title">Account Information</h3>
+                            
+                            <div class="form-group">
+                                <label for="name">Display Name</label>
+                                <input type="text" id="name" name="name" value="{{ current_user.name or '' }}" placeholder="Enter your display name">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email">Email (cannot be changed)</label>
+                                <input type="email" id="email" value="{{ current_user.email }}" disabled>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="recovery_email">Recovery Email</label>
+                                <input type="email" id="recovery_email" name="recovery_email" value="{{ current_user.recovery_email or '' }}" placeholder="Enter a recovery email address">
+                            </div>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h3 class="section-title">Profile Frame</h3>
+                            <p>Choose a frame for your profile picture:</p>
+                            
+                            <div class="frames-grid">
+                                <div class="frame-option {% if not current_user.profile_frame %}selected{% endif %}" data-frame="none.png">
+                                    <img src="{{ url_for('static', filename='images/frames/none.png') }}" alt="No Frame">
+                                </div>
+                                
+                                <div class="frame-option {% if current_user.profile_frame == 'stars.png' %}selected{% endif %}" data-frame="stars.png">
+                                    <img src="{{ url_for('static', filename='images/frames/stars.png') }}" alt="Stars Frame">
+                                </div>
+                                
+                                <div class="frame-option {% if current_user.profile_frame == 'rainbow.png' %}selected{% endif %}" data-frame="rainbow.png">
+                                    <img src="{{ url_for('static', filename='images/frames/rainbow.png') }}" alt="Rainbow Frame">
+                                </div>
+                                
+                                <div class="frame-option {% if current_user.profile_frame == 'galaxy.png' %}selected{% endif %}" data-frame="galaxy.png">
+                                    <img src="{{ url_for('static', filename='images/frames/galaxy.png') }}" alt="Galaxy Frame">
+                                </div>
+                                
+                                <div class="frame-option {% if current_user.profile_frame == 'gold.png' %}selected{% endif %}" data-frame="gold.png">
+                                    <img src="{{ url_for('static', filename='images/frames/gold.png') }}" alt="Gold Frame">
+                                </div>
+                                
+                                <div class="frame-option {% if current_user.profile_frame == 'flowers.png' %}selected{% endif %}" data-frame="flowers.png">
+                                    <img src="{{ url_for('static', filename='images/frames/flowers.png') }}" alt="Flowers Frame">
+                                </div>
+                            </div>
+                            
+                            <input type="hidden" id="selected-frame" name="profile_frame" value="{{ current_user.profile_frame or 'none.png' }}">
+                        </div>
+                        
+                        <button type="submit" class="save-btn">Save Changes</button>
+                        
+                        <div id="status-message" class="status-message"></div>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="achievement-section">
+                <h3 class="section-title">My Achievements</h3>
+                
+                <div class="achievements-grid">
+                    <div class="achievement-badge" id="chatbot-master-badge" data-tooltip="Send at least 10 messages to the chatbot to earn this achievement.">
+                        <i class="fas fa-comment-dots"></i>
+                        <p>Chatbot Master</p>
+                    </div>
+                    
+                    <div class="achievement-badge" id="quiz-champion-badge" data-tooltip="Complete 5 quizzes to earn this achievement.">
+                        <i class="fas fa-calendar-check"></i>
+                        <p>Quiz Champion</p>
+                    </div>
+                    
+                    <div class="achievement-badge" id="math-wizard-badge" data-tooltip="Solve the math challenge to earn this achievement.">
+                        <i class="fas fa-question-circle"></i>
+                        <p>Math Wizard</p>
+                    </div>
+                    
+                    <div class="achievement-badge" id="explorer-badge" data-tooltip="Visit all sections of the app to earn this achievement.">
+                        <i class="fas fa-compass"></i>
+                        <p>Explorer</p>
+                    </div>
+                    
+                    <div class="achievement-badge" id="science-genius-badge" data-tooltip="Complete the science challenge to earn this achievement.">
+                        <i class="fas fa-flask"></i>
+                        <p>Science Genius</p>
+                    </div>
+                    
+                    <div class="achievement-badge" id="math-master-badge" data-tooltip="Complete 10 math questions correctly to earn this achievement.">
+                        <i class="fas fa-calculator"></i>
+                        <p>Math Master</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Profile picture fallback handling
+            const profileImg = document.getElementById('profile-image');
+            if (profileImg) {
+                profileImg.onerror = function() {
+                    // If the profile image fails to load, replace with default avatar or an icon
+                    this.style.display = 'none';
+                    const container = this.parentElement;
+                    const defaultAvatar = document.createElement('div');
+                    defaultAvatar.className = 'default-avatar';
+                    const icon = document.createElement('i');
+                    icon.className = 'fas fa-user-circle';
+                    defaultAvatar.appendChild(icon);
+                    container.appendChild(defaultAvatar);
+                };
+            }
+            
+            // Profile picture upload preview
+            const profilePicUpload = document.getElementById('profile-pic-upload');
+            const profileImage = document.getElementById('profile-image');
+            const savePhotoBtn = document.getElementById('save-photo-btn');
+            const profileForm = document.getElementById('profile-form');
+            
+            profilePicUpload.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        profileImage.src = e.target.result;
+                        // Show the save button when a new image is selected
+                        savePhotoBtn.style.display = 'inline-block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Auto-submit form when Save Photo button is clicked
+            savePhotoBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                profileForm.submit();
+            });
+            
+            // Frame selection
+            const frameOptions = document.querySelectorAll('.frame-option');
+            const profileFrame = document.getElementById('profile-frame');
+            const selectedFrameInput = document.getElementById('selected-frame');
+            
+            frameOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove selected class from all options
+                    frameOptions.forEach(opt => opt.classList.remove('selected'));
+                    
+                    // Add selected class to clicked option
+                    this.classList.add('selected');
+                    
+                    // Update frame preview and hidden input
+                    const frameName = this.dataset.frame;
+                    profileFrame.src = "{{ url_for('static', filename='images/frames/') }}" + frameName;
+                    profileFrame.onerror = function() {
+                        this.style.display = 'none';
+                    };
+                    profileFrame.onload = function() {
+                        this.style.display = 'block';
+                    };
+                    selectedFrameInput.value = frameName;
+                });
+            });
+            
+            // Form submission
+            const statusMessage = document.getElementById('status-message');
+            
+            // Check for success/error flash messages
+            document.addEventListener('DOMContentLoaded', function() {
+                // Check if there's a success or error query parameter
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('success')) {
+                    statusMessage.style.display = 'block';
+                    statusMessage.className = 'status-message success-message';
+                    statusMessage.textContent = 'Profile updated successfully!';
+                    
+                    // Hide message after 3 seconds
+                    setTimeout(() => {
+                        statusMessage.style.display = 'none';
+                    }, 3000);
+                } else if (urlParams.has('error')) {
+                    statusMessage.style.display = 'block';
+                    statusMessage.className = 'status-message error-message';
+                    statusMessage.textContent = urlParams.get('error') || 'An error occurred while updating your profile.';
+                    
+                    // Hide message after 3 seconds
+                    setTimeout(() => {
+                        statusMessage.style.display = 'none';
+                    }, 3000);
+                }
+                
+                // Check for flash messages from template
+                const successMessage = "{{ success }}";
+                const errorMessage = "{{ error }}";
+                
+                if (successMessage.trim()) {
+                    statusMessage.style.display = 'block';
+                    statusMessage.className = 'status-message success-message';
+                    statusMessage.textContent = successMessage;
+                    
+                    // Hide message after 3 seconds
+                    setTimeout(() => {
+                        statusMessage.style.display = 'none';
+                    }, 3000);
+                }
+                
+                if (errorMessage.trim()) {
+                    statusMessage.style.display = 'block';
+                    statusMessage.className = 'status-message error-message';
+                    statusMessage.textContent = errorMessage;
+                    
+                    // Hide message after 3 seconds
+                    setTimeout(() => {
+                        statusMessage.style.display = 'none';
+                    }, 3000);
+                }
+            });
+            
+            // Load achievements
+            function loadAchievements() {
+                const achievements = JSON.parse(localStorage.getItem('achievements') || '{}');
+                
+                if (achievements.mathWizard) {
+                    document.getElementById('math-wizard-badge').classList.add('earned');
+                }
+                
+                // Check for Explorer achievement
+                const sections = ['chat_page', 'quiz_page', 'progress_tracker', 'games_page', 'create_image', 'profile'];
+                const visitedSections = JSON.parse(localStorage.getItem('visitedSections') || '[]');
+                
+                // Add current section to visited sections
+                if (!visitedSections.includes('profile')) {
+                    visitedSections.push('profile');
+                    localStorage.setItem('visitedSections', JSON.stringify(visitedSections));
+                }
+                
+                // If all sections visited, award explorer badge
+                if (sections.every(section => visitedSections.includes(section))) {
+                    document.getElementById('explorer-badge').classList.add('earned');
+                    achievements.explorer = true;
+                    localStorage.setItem('achievements', JSON.stringify(achievements));
+                }
+            }
+            
+            loadAchievements();
+            
+            // Tooltip functionality for achievements
+            const achievementBadges = document.querySelectorAll('.achievement-badge[data-tooltip]');
+            
+            achievementBadges.forEach(badge => {
+                badge.addEventListener('mouseover', function() {
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'achievement-tooltip';
+                    tooltip.textContent = this.dataset.tooltip;
+                    
+                    document.body.appendChild(tooltip);
+                    
+                    const badgeRect = this.getBoundingClientRect();
+                    tooltip.style.position = 'absolute';
+                    tooltip.style.top = `${badgeRect.top - tooltip.offsetHeight - 10}px`;
+                    tooltip.style.left = `${badgeRect.left + (badgeRect.width/2) - (tooltip.offsetWidth/2)}px`;
+                    tooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+                    tooltip.style.color = 'white';
+                    tooltip.style.padding = '8px 12px';
+                    tooltip.style.borderRadius = '5px';
+                    tooltip.style.zIndex = '1000';
+                    tooltip.style.transition = 'opacity 0.3s ease';
+                    tooltip.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        tooltip.style.opacity = '1';
+                    }, 10);
+                });
+                
+                badge.addEventListener('mouseout', function() {
+                    const tooltip = document.querySelector('.achievement-tooltip');
+                    if (tooltip) {
+                        tooltip.style.opacity = '0';
+                        setTimeout(() => {
+                            tooltip.remove();
+                        }, 300);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

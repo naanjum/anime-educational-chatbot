@@ -1,0 +1,135 @@
+ <!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Anime Educational Chatbot</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding-top: 100px;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            width: 40%;
+            margin: auto;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            margin: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            width: 40%;
+            text-align: center;
+        }
+
+        .oauth-btn {
+            background-color: #4285F4;
+            color: white;
+            font-weight: bold;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .oauth-btn:hover {
+            background-color: #357ae8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Anime Educational Chatbot!</h1>
+        <p>Please sign up or log in to continue.</p>
+        <button id="signup-modal-btn">Sign Up</button>
+        <button id="login-modal-btn">Log In</button>
+    </div>
+
+    <!-- Modal for Sign Up/Login -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content">
+            <h2>Sign In or Sign Up</h2>
+            <form id="auth-form">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+
+                <button type="button" id="signup-btn">Sign Up</button>
+                <button type="button" id="signin-btn">Sign In</button>
+            </form>
+
+            <button class="oauth-btn" id="google-login-btn">Sign in with Google</button>
+        </div>
+    </div>
+
+    <script>
+        const authModal = document.getElementById('auth-modal');
+        const signupModalBtn = document.getElementById('signup-modal-btn');
+        const loginModalBtn = document.getElementById('login-modal-btn');
+        const closeModal = () => authModal.style.display = 'none';
+
+        // Show modal when sign-up or login button is clicked
+        signupModalBtn.onclick = loginModalBtn.onclick = function() {
+            authModal.style.display = 'flex';
+        };
+
+        // Google OAuth redirection
+        document.getElementById('google-login-btn').onclick = function() {
+            window.location.href = '/login/google';
+        };
+
+        // Close modal on click outside
+        window.onclick = function(event) {
+            if (event.target === authModal) {
+                closeModal();
+            }
+        };
+    </script>
+</body>
+</html>
+ -->

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Database - DANGER</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --danger-color: #e74c3c;
+            --danger-dark: #c0392b;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --border-radius: 10px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 700px;
+            margin: 20px 0;
+        }
+        
+        .warning-panel {
+            background-color: var(--danger-color);
+            color: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .warning-panel h1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+        
+        .warning-panel i {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        
+        .warning-panel p {
+            font-size: 18px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .confirmation-form {
+            background-color: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .confirmation-form h2 {
+            margin-bottom: 20px;
+            color: var(--danger-color);
+        }
+        
+        .confirmation-form p {
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            font-family: 'Nunito', sans-serif;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border-radius: 5px;
+            border: none;
+            font-weight: 600;
+            font-family: 'Nunito', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: var(--danger-dark);
+        }
+        
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="warning-panel">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h1>DANGER ZONE</h1>
+            <p>You are about to reset the entire database.</p>
+            <p>This action cannot be undone and will delete ALL data!</p>
+        </div>
+        
+        <div class="confirmation-form">
+            <h2>Database Reset Confirmation</h2>
+            <p>Resetting the database will:</p>
+            <ul>
+                <li>Delete ALL user accounts</li>
+                <li>Delete ALL chat history</li>
+                <li>Delete ALL user progress</li>
+                <li>Create a new admin user</li>
+            </ul>
+            <p>Please type <strong>RESET DATABASE</strong> in the field below to confirm:</p>
+            
+            <form action="{{ url_for('admin_reset_database') }}" method="POST">
+                <div class="form-group">
+                    <label for="confirmation">Confirmation Text:</label>
+                    <input type="text" id="confirmation" name="confirmation" placeholder="Type RESET DATABASE here" required>
+                </div>
+                
+                <div class="buttons">
+                    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-danger">Reset Database</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html> 

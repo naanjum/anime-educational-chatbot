@@ -1,0 +1,2158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Learning Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #8e44ad;
+            --secondary-color: #e74c3c;
+            --accent-color: #f1c40f;
+            --dark-color: #333;
+            --light-color: #F6F8FF;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --border-radius: 15px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: url("{{ url_for('static', filename='background.jpg') }}") no-repeat center center fixed;
+            background-size: cover;
+            color: var(--dark-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .app-container {
+            width: 100%;
+            max-width: 1000px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header .user-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        .header .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        
+        .header .user-name {
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header .upload-label {
+            display: inline-block;
+            margin-top: 5px;
+            font-size: 12px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 3px 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .header .upload-label:hover {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+        
+        #avatar-upload {
+            display: none;
+        }
+        
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .back-button:hover {
+            transform: translateX(-5px);
+        }
+        
+        .content {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .card-header h2 {
+            font-size: 20px;
+            color: var(--primary-color);
+        }
+        
+        .card-header .card-icon {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+        
+        /* Progress charts */
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+        
+        /* Goals styles */
+        .goal-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .goal-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        
+        .goal-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .goal-title {
+            flex: 1;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .goal-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #333;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            width: 100px;
+            background-color: #eee;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 5px;
+        }
+        
+        .goal-item button {
+            background: none;
+            border: none;
+            color: #555;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+        
+        .goal-item button:hover {
+            color: var(--danger-color);
+            transform: scale(1.2);
+        }
+        
+        /* Forms */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #444;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-family: inherit;
+            transition: all 0.3s;
+            color: #333;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.1);
+        }
+        
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-primary:hover {
+            background-color: #3a5a85;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(74, 111, 165, 0.2);
+        }
+        
+        /* Daily Contributions */
+        .contribution-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+        
+        .contribution-day {
+            aspect-ratio: 1;
+            border-radius: 5px;
+            background-color: #eee;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .contribution-day.level-0 {
+            background-color: #eee;
+        }
+        
+        .contribution-day.level-1 {
+            background-color: #D6A4E3;
+        }
+        
+        .contribution-day.level-2 {
+            background-color: #BB8FCE;
+        }
+        
+        .contribution-day.level-3 {
+            background-color: #A569BD;
+        }
+        
+        .contribution-day.level-4 {
+            background-color: #8E44AD;
+        }
+        
+        .contribution-day:hover {
+            transform: scale(1.1);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .contribution-tooltip {
+            position: absolute;
+            background-color: #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 10;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+            font-weight: 600;
+        }
+        
+        .streak-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .streak-box {
+            text-align: center;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            flex: 1;
+            margin: 0 5px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .streak-box .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .streak-box .label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #444;
+        }
+        
+        /* Badges */
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 25px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .badge-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .badge-item:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, currentColor, rgba(255, 255, 255, 0.5));
+        }
+        
+        .badge-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin-bottom: 15px;
+            background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3));
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            transition: all 0.3s ease;
+            color: white;
+        }
+        
+        /* Distinct colors for each achievement type */
+        .chatbot-icon {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #3498db;
+        }
+        
+        .quiz-icon {
+            background: linear-gradient(135deg, #f39c12, #d35400);
+            color: #f39c12;
+        }
+        
+        .math-wizard-icon {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: #27ae60;
+        }
+        
+        .explorer-icon {
+            background: linear-gradient(135deg, #5c6bc0, #3f51b5);
+            color: #5c6bc0;
+        }
+        
+        .science-icon {
+            background: linear-gradient(135deg, #e67e22, #d35400);
+            color: #e67e22;
+        }
+        
+        .math-master-icon {
+            background: linear-gradient(135deg, #00a8ff, #0097e6);
+            color: #00a8ff;
+        }
+        
+        .badge-name {
+            font-weight: 700;
+            font-size: 16px;
+            text-align: center;
+            margin-top: 10px;
+            color: #333;
+        }
+        
+        /* Completed badge styling */
+        .badge-item.completed {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .badge-item.completed .badge-icon {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .badge-item.completed:after {
+            content: "✓";
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #8e44ad;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            border: 2px solid white;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .badge-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Enhanced tooltip */
+        .badge-item[data-tooltip]:before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            width: max-content;
+            max-width: 250px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            line-height: 1.4;
+        }
+        
+        .badge-item[data-tooltip]:after {
+            content: "";
+            position: absolute;
+            bottom: 120%;
+            left: 50%;
+            transform: translateX(-50%) translateY(8px);
+            border-width: 8px 8px 0;
+            border-style: solid;
+            border-color: rgba(0, 0, 0, 0.8) transparent transparent;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .badge-item[data-tooltip]:hover:before,
+        .badge-item[data-tooltip]:hover:after {
+            opacity: 1;
+            visibility: visible;
+            bottom: 130%;
+        }
+        
+        .badge-item:hover .badge-info {
+            opacity: 1;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        .slide-up {
+            animation: slideUp 0.5s ease forwards;
+        }
+        
+        /* Confetti animation for achievements */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent-color);
+            pointer-events: none;
+            z-index: 100;
+        }
+        
+        /* Quick questions section */
+        .quick-questions {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .question-btn {
+            background-color: #f8f9fa;
+            color: var(--dark-color);
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .question-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Tooltip styling */
+        .badge-item {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .badge-item[data-tooltip]:before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            width: max-content;
+            max-width: 250px;
+            z-index: 10;
+        }
+        
+        .badge-item[data-tooltip]:hover:before {
+            opacity: 1;
+            visibility: visible;
+            bottom: 120%;
+        }
+        
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 25px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        
+        .close-modal {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+        
+        .close-modal:hover {
+            color: black;
+        }
+        
+        .math-question {
+            font-size: 24px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .math-answer {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .math-answer input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .math-answer button {
+            background-color: #8e44ad;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .math-result {
+            text-align: center;
+            font-weight: bold;
+            min-height: 30px;
+        }
+        
+        .math-success {
+            color: #2ecc71;
+        }
+        
+        .math-error {
+            color: #e74c3c;
+        }
+        
+        /* Nav Bar Additions */
+        .nav-item a.profile-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .nav-item a.profile-link img {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        /* Additional styles for the math modal */
+        .modal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(142, 68, 173, 0.2);
+            padding-bottom: 15px;
+        }
+        
+        .modal-icon {
+            font-size: 28px;
+            color: #8e44ad;
+            margin-right: 15px;
+            background-color: rgba(142, 68, 173, 0.1);
+            padding: 10px;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-description {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        
+        .math-question {
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            margin: 30px 0;
+            color: #333;
+            background-color: rgba(142, 68, 173, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .math-answer {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .math-answer input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+        
+        .math-answer input:focus {
+            border-color: #8e44ad;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(142, 68, 173, 0.2);
+        }
+        
+        .math-answer button {
+            background-color: #8e44ad;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .math-answer button:hover {
+            background-color: #9b59b6;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(142, 68, 173, 0.3);
+        }
+        
+        .math-result {
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            min-height: 40px;
+            transition: all 0.3s ease;
+        }
+        
+        .math-success {
+            color: #27ae60;
+        }
+        
+        .math-error {
+            color: #e74c3c;
+        }
+        
+        /* Animation for correct answer */
+        @keyframes success-pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 30px rgba(39, 174, 96, 0.5);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .math-success {
+            animation: success-pulse 0.5s ease-in-out 3;
+        }
+        
+        /* Add confetti animation */
+        @keyframes fall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(600px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .confetti {
+            position: absolute;
+            z-index: 100;
+            pointer-events: none;
+        }
+        
+        /* Shake animation for incorrect answer */
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            10%, 30%, 50%, 70%, 90% {
+                transform: translateX(-5px);
+            }
+            20%, 40%, 60%, 80% {
+                transform: translateX(5px);
+            }
+        }
+        
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        /* Date and time display */
+        .date-time-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            background-color: rgba(142, 68, 173, 0.1);
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        
+        #current-date {
+            color: #8e44ad;
+            font-size: 16px;
+        }
+        
+        #current-time {
+            color: #333;
+            font-size: 16px;
+            background-color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Achievement notification toast */
+        .achievement-toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transform: translateY(150%);
+            transition: transform 0.5s ease;
+            max-width: 350px;
+        }
+        
+        .achievement-toast.show {
+            transform: translateY(0);
+        }
+        
+        .achievement-toast-icon {
+            font-size: 24px;
+            color: var(--accent-color);
+        }
+        
+        .achievement-toast-content {
+            flex: 1;
+        }
+        
+        .achievement-toast-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .achievement-toast-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        
+        .achievement-toast-close:hover {
+            opacity: 1;
+        }
+        
+        /* Arrow indicator for pending achievements */
+        .badge-item:not(.completed) .arrow-indicator {
+            position: absolute;
+            right: -40px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent-color);
+            font-size: 24px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.5; transform: translateY(-50%) scale(0.95); }
+            50% { opacity: 1; transform: translateY(-50%) scale(1.05); }
+            100% { opacity: 0.5; transform: translateY(-50%) scale(0.95); }
+        }
+        
+        /* Daily Notes */
+        .daily-note {
+            background-color: #fff8e1;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-color);
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .daily-note-date {
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 5px;
+        }
+        
+        .daily-note-content {
+            font-size: 14px;
+        }
+        
+        .daily-note-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            resize: vertical;
+            min-height: 80px;
+            font-family: 'Nunito', sans-serif;
+        }
+        
+        .daily-note-form {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #eee;
+        }
+        
+        .daily-note-form-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+        
+        .daily-note-form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .daily-note-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .daily-note-tag {
+            padding: 5px 10px;
+            background-color: #f0f0f0;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .daily-note-tag:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .daily-note-tag.selected {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .daily-note-save {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .daily-note-save:hover {
+            background-color: #7d3c98;
+        }
+        
+        .daily-note-delete {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .daily-note-delete:hover {
+            color: var(--danger-color);
+        }
+        
+        .daily-note-tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        
+        .daily-note-tag-item {
+            font-size: 11px;
+            background-color: rgba(142, 68, 173, 0.1);
+            color: var(--primary-color);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        
+        .daily-notes-filter {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .daily-notes-filter-label {
+            font-weight: 600;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .daily-notes-filter-options {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .filter-option {
+            font-size: 12px;
+            color: #666;
+            cursor: pointer;
+            padding: 3px 8px;
+            border-radius: 15px;
+            background-color: #f0f0f0;
+            transition: all 0.2s;
+        }
+        
+        .filter-option:hover, .filter-option.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <button class="back-button" data-href="{{ url_for('chat_page') }}">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1>My Learning Journey</h1>
+            <div class="user-info">
+                <img src="{{ url_for('static', filename=profile_pic) }}" alt="User" class="user-avatar">
+                <div class="user-name">{{ session.get('registered_name', 'User') }}</div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- Learning Progress Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Learning Progress</h2>
+                    <i class="fas fa-chart-line card-icon"></i>
+                </div>
+                <div class="chart-container">
+                    <canvas id="progressChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Daily Contributions Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Daily Contributions</h2>
+                    <i class="fas fa-calendar-check card-icon"></i>
+                </div>
+                <div id="contribution-container">
+                    <div class="date-time-display">
+                        <div id="current-date">Loading date...</div>
+                        <div id="current-time">Loading time...</div>
+                    </div>
+                    <div class="contribution-grid" id="contribution-grid"></div>
+                    <div class="streak-info">
+                        <div class="streak-box">
+                            <div class="value" id="current-streak">0</div>
+                            <div class="label">Current Streak</div>
+                        </div>
+                        <div class="streak-box">
+                            <div class="value" id="total-contributions">0</div>
+                            <div class="label">Total Contributions</div>
+                        </div>
+                        <div class="streak-box">
+                            <div class="value" id="best-streak">0</div>
+                            <div class="label">Best Streak</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Goals Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Learning Goals</h2>
+                    <i class="fas fa-bullseye card-icon"></i>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="newGoal" class="form-control" placeholder="Enter a new learning goal...">
+                </div>
+                <div class="form-group">
+                    <button id="addGoalBtn" class="btn btn-primary">Add Goal</button>
+                </div>
+                <ul id="goalList" class="goal-list"></ul>
+            </div>
+
+            <!-- Achievement badges section -->
+            <div class="section" id="achievements">
+                <div class="section-header">
+                    <h2>My Achievements</h2>
+                    <div class="section-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                </div>
+                
+                <div class="badges-grid">
+                    <!-- Chatbot Achievement -->
+                    <div class="badge-item" id="chatbot-master-badge" data-tooltip="Send at least 10 messages to the chatbot to earn this achievement.">
+                        <div class="badge-icon chatbot-icon">
+                            <i class="fas fa-comment-dots"></i>
+                        </div>
+                        <div class="badge-name">Chatbot Master</div>
+                    </div>
+
+                    <!-- Quiz Achievement -->
+                    <div class="badge-item" id="quiz-champion-badge" data-tooltip="Complete 5 quizzes to earn this achievement.">
+                        <div class="badge-icon quiz-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="badge-name">Quiz Champion</div>
+                    </div>
+
+                    <!-- Math Wizard Achievement -->
+                    <div class="badge-item" id="math-wizard-badge" data-tooltip="Solve the math challenge to earn this achievement.">
+                        <div class="badge-icon math-wizard-icon">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div class="badge-name">Math Wizard</div>
+                    </div>
+
+                    <!-- Explorer Achievement -->
+                    <div class="badge-item" id="explorer-badge" data-tooltip="Visit all sections of the app to earn this achievement.">
+                        <div class="badge-icon explorer-icon">
+                            <i class="fas fa-compass"></i>
+                        </div>
+                        <div class="badge-name">Explorer</div>
+                    </div>
+
+                    <!-- Science Achievement -->
+                    <div class="badge-item" id="science-genius-badge" data-tooltip="Complete the science challenge to earn this achievement.">
+                        <div class="badge-icon science-icon">
+                            <i class="fas fa-flask"></i>
+                        </div>
+                        <div class="badge-name">Science Genius</div>
+                    </div>
+
+                    <!-- Math Achievement -->
+                    <div class="badge-item" id="math-master-badge" data-tooltip="Complete 10 math questions correctly to earn this achievement.">
+                        <div class="badge-icon math-master-icon">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <div class="badge-name">Math Master</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Note Section -->
+            <div class="section" id="daily-notes">
+                <div class="section-header">
+                    <h2>Daily Learning Notes</h2>
+                    <div class="section-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                </div>
+                
+                <div class="daily-note-form">
+                    <div class="daily-note-form-title">Write a note about your learning today</div>
+                    <textarea id="daily-note-input" class="daily-note-input" placeholder="What did you learn today? What progress did you make towards your goals?"></textarea>
+                    
+                    <div class="daily-note-tags">
+                        <div class="daily-note-tag" data-tag="Learning">Learning</div>
+                        <div class="daily-note-tag" data-tag="Goal">Goal</div>
+                        <div class="daily-note-tag" data-tag="Challenge">Challenge</div>
+                        <div class="daily-note-tag" data-tag="Question">Question</div>
+                        <div class="daily-note-tag" data-tag="Success">Success</div>
+                        <div class="daily-note-tag" data-tag="Idea">Idea</div>
+                    </div>
+                    
+                    <div class="daily-note-form-actions">
+                        <div class="note-chars-left">Characters left: <span id="chars-left">500</span></div>
+                        <button id="save-note-btn" class="daily-note-save">Save Note</button>
+                    </div>
+                </div>
+                
+                <div class="daily-notes-filter">
+                    <div class="daily-notes-filter-label">Filter:</div>
+                    <div class="daily-notes-filter-options">
+                        <div class="filter-option active" data-filter="all">All</div>
+                        <div class="filter-option" data-filter="Learning">Learning</div>
+                        <div class="filter-option" data-filter="Goal">Goals</div>
+                        <div class="filter-option" data-filter="Challenge">Challenges</div>
+                        <div class="filter-option" data-filter="today">Today</div>
+                        <div class="filter-option" data-filter="week">This Week</div>
+                    </div>
+                </div>
+                
+                <div id="daily-notes-list" class="daily-notes-list">
+                    <!-- Notes will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variables
+            const goalInput = document.getElementById('newGoal');
+            const addGoalBtn = document.getElementById('addGoalBtn');
+            const goalList = document.getElementById('goalList');
+            const streakCount = document.getElementById('current-streak');
+            const totalContributions = document.getElementById('total-contributions');
+            const bestStreak = document.getElementById('best-streak');
+            const progressChart = document.getElementById('progressChart');
+            const contributionGrid = document.getElementById('contribution-grid');
+            const mathWizardBadge = document.getElementById('math-wizard-badge');
+            const mathModal = document.getElementById('math-challenge-modal');
+            const closeModal = document.querySelector('.close-modal');
+            const mathQuestion = document.getElementById('math-question');
+            const mathAnswer = document.getElementById('math-answer');
+            const checkAnswer = document.getElementById('check-answer');
+            const mathResult = document.getElementById('math-result');
+            const dailyNoteInput = document.getElementById('daily-note-input');
+            const saveNoteBtn = document.getElementById('save-note-btn');
+            const dailyNotesList = document.getElementById('daily-notes-list');
+            const backButton = document.querySelector('.back-button');
+            
+            // Add event listener to back button instead of using inline onclick
+            if (backButton) {
+                backButton.addEventListener('click', function() {
+                    const chatPageUrl = this.getAttribute('data-href');
+                    window.location.href = chatPageUrl;
+                });
+            }
+            
+            // Load data from localStorage
+            let goals = JSON.parse(localStorage.getItem('goals') || '[]');
+            let dailyContributions = JSON.parse(localStorage.getItem('dailyContributions') || '{}');
+            let dailyNotes = JSON.parse(localStorage.getItem('dailyNotes') || '[]');
+            let currentStreak = parseInt(localStorage.getItem('currentStreak') || '0');
+            let bestStreakValue = parseInt(localStorage.getItem('bestStreak') || '0');
+            let totalContributionsValue = parseInt(localStorage.getItem('totalContributions') || '0');
+            
+            // Initialize UI
+            updateGoalsList();
+            updateContributionGrid();
+            updateStats();
+            loadDailyNotes();
+            
+            // Initialize chart
+            initChart();
+            
+            // Event listeners
+            if (addGoalBtn) {
+                addGoalBtn.addEventListener('click', addGoal);
+            }
+            
+            if (goalInput) {
+                goalInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        addGoal();
+                    }
+                });
+            }
+            
+            // Math Wizard Challenge
+            if (mathWizardBadge && mathModal) {
+                // Open math challenge modal
+                mathWizardBadge.addEventListener('click', function() {
+                    mathModal.style.display = 'block';
+                    generateMathQuestion();
+                    mathAnswer.value = '';
+                    mathResult.textContent = '';
+                    mathResult.className = 'math-result';
+                });
+                
+                // Close modal
+                if (closeModal) {
+                    closeModal.addEventListener('click', function() {
+                        mathModal.style.display = 'none';
+                    });
+                }
+                
+                // Check answer
+                if (checkAnswer) {
+                    checkAnswer.addEventListener('click', function() {
+                        checkMathAnswer();
+                    });
+                    
+                    // Allow pressing Enter to check answer
+                    mathAnswer.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            checkMathAnswer();
+                        }
+                    });
+                }
+                
+                // Close modal if clicking outside
+                window.addEventListener('click', function(event) {
+                    if (event.target === mathModal) {
+                        mathModal.style.display = 'none';
+                    }
+                });
+                
+                // Load achievements
+                loadAchievements();
+            }
+            
+            // Functions
+            function addGoal() {
+                const goalText = goalInput.value.trim();
+                if (goalText) {
+                    goals.push({
+                        id: Date.now(),
+                        text: goalText,
+                        completed: false
+                    });
+                    localStorage.setItem('goals', JSON.stringify(goals));
+                    goalInput.value = '';
+                    updateGoalsList();
+                }
+            }
+            
+            function updateGoalsList() {
+                goalList.innerHTML = '';
+                goals.forEach(goal => {
+                    const goalItem = document.createElement('li');
+                    goalItem.className = 'goal-item' + (goal.completed ? ' completed' : '');
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.checked = goal.completed;
+                    checkbox.addEventListener('change', () => toggleGoal(goal.id));
+                    
+                    const goalText = document.createElement('span');
+                    goalText.textContent = goal.text;
+                    
+                    const deleteButton = document.createElement('button');
+                    deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+                    deleteButton.addEventListener('click', () => deleteGoal(goal.id));
+                    
+                    goalItem.appendChild(checkbox);
+                    goalItem.appendChild(goalText);
+                    goalItem.appendChild(deleteButton);
+                    goalList.appendChild(goalItem);
+                });
+            }
+            
+            function toggleGoal(id) {
+                goals = goals.map(goal => {
+                    if (goal.id === id) {
+                        return {...goal, completed: !goal.completed};
+                    }
+                    return goal;
+                });
+                localStorage.setItem('goals', JSON.stringify(goals));
+                updateGoalsList();
+                addContribution();
+            }
+            
+            function deleteGoal(id) {
+                goals = goals.filter(goal => goal.id !== id);
+                localStorage.setItem('goals', JSON.stringify(goals));
+                updateGoalsList();
+            }
+            
+            function updateContributionGrid() {
+                contributionGrid.innerHTML = '';
+                
+                const today = new Date();
+                const oneDay = 24 * 60 * 60 * 1000;
+                
+                for (let i = 90; i >= 0; i--) {
+                    const date = new Date(today - oneDay * i);
+                    const dateString = date.toISOString().split('T')[0];
+                    
+                    const cell = document.createElement('div');
+                    cell.className = 'contribution-cell';
+                    
+                    const contributions = dailyContributions[dateString] || 0;
+                    if (contributions > 0) {
+                        cell.classList.add('has-contribution');
+                        if (contributions > 5) {
+                            cell.classList.add('high-contribution');
+                        } else if (contributions > 2) {
+                            cell.classList.add('medium-contribution');
+                        }
+                        
+                        cell.setAttribute('title', `${contributions} contributions on ${date.toDateString()}`);
+                    }
+                    
+                    contributionGrid.appendChild(cell);
+                }
+            }
+            
+            function updateStats() {
+                streakCount.textContent = currentStreak;
+                bestStreak.textContent = bestStreakValue;
+                totalContributions.textContent = totalContributionsValue;
+            }
+            
+            function initChart() {
+                const ctx = progressChart.getContext('2d');
+                const chartData = {
+                    labels: ['Math', 'Science', 'History', 'Language', 'Art'],
+                    datasets: [{
+                        label: 'Knowledge Level',
+                        data: [70, 65, 60, 80, 50],
+                        backgroundColor: 'rgba(142, 68, 173, 0.2)',
+                        borderColor: 'rgba(142, 68, 173, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(142, 68, 173, 1)'
+                    }]
+                };
+                
+                new Chart(ctx, {
+                    type: 'radar',
+                    data: chartData,
+                    options: {
+                        scale: {
+                            ticks: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            }
+            
+            function addContribution() {
+                const today = new Date();
+                const dateString = today.toISOString().split('T')[0];
+                
+                if (!dailyContributions[dateString]) {
+                    dailyContributions[dateString] = 0;
+                }
+                
+                dailyContributions[dateString]++;
+                totalContributionsValue++;
+                
+                // Update streak
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayString = yesterday.toISOString().split('T')[0];
+                
+                if (dailyContributions[yesterdayString]) {
+                    currentStreak++;
+                } else if (!dailyContributions[dateString]) {
+                    currentStreak = 1;
+                }
+                
+                // Update best streak
+                if (currentStreak > bestStreakValue) {
+                    bestStreakValue = currentStreak;
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('dailyContributions', JSON.stringify(dailyContributions));
+                localStorage.setItem('currentStreak', currentStreak.toString());
+                localStorage.setItem('bestStreak', bestStreakValue.toString());
+                localStorage.setItem('totalContributions', totalContributionsValue.toString());
+                
+                // Update UI
+                updateContributionGrid();
+                updateStats();
+            }
+            
+            function generateMathQuestion() {
+                const operations = ['+', '-', '*'];
+                const operation = operations[Math.floor(Math.random() * operations.length)];
+                
+                let num1, num2, answer;
+                
+                switch(operation) {
+                    case '+':
+                        num1 = Math.floor(Math.random() * 50) + 10;
+                        num2 = Math.floor(Math.random() * 50) + 10;
+                        answer = num1 + num2;
+                        break;
+                    case '-':
+                        num1 = Math.floor(Math.random() * 50) + 50;
+                        num2 = Math.floor(Math.random() * 40) + 10;
+                        answer = num1 - num2;
+                        break;
+                    case '*':
+                        num1 = Math.floor(Math.random() * 12) + 1;
+                        num2 = Math.floor(Math.random() * 12) + 1;
+                        answer = num1 * num2;
+                        break;
+                }
+                
+                mathQuestion.textContent = `${num1} ${operation} ${num2} = ?`;
+                mathQuestion.dataset.answer = answer;
+            }
+            
+            function checkMathAnswer() {
+                const userAnswer = parseInt(mathAnswer.value);
+                const correctAnswer = parseInt(mathQuestion.dataset.answer);
+                
+                if (userAnswer === correctAnswer) {
+                    mathResult.textContent = 'Correct! You\'ve earned the Math Wizard achievement!';
+                    mathResult.className = 'math-result math-success';
+                    
+                    // Check if the user already has this achievement
+                    let achievements = JSON.parse(localStorage.getItem('achievements') || '{}');
+                    
+                    // Only proceed if the user doesn't already have this achievement
+                    if (!achievements.mathWizard) {
+                        // Mark achievement as completed
+                        mathWizardBadge.classList.add('completed');
+                        
+                        // Store achievement in localStorage
+                        achievements.mathWizard = true;
+                        localStorage.setItem('achievements', JSON.stringify(achievements));
+                        
+                        // Send achievement data to server
+                        fetch('/check_achievements', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                task_type: 'math_challenge',
+                                task_data: {
+                                    question: mathQuestion.textContent,
+                                    correct: true
+                                }
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Achievement data synced with server:', data);
+                            if (data.new_achievements && data.new_achievements.includes('Math Wizard')) {
+                                showAchievementNotification('Math Wizard', 'You\'ve unlocked the Math Wizard achievement!');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error syncing achievement with server:', error);
+                        });
+                    }
+                    
+                    // Show confetti animation
+                    createConfetti();
+                    
+                    // Close modal after delay
+                    setTimeout(() => {
+                        mathModal.style.display = 'none';
+                    }, 3000);
+                } else {
+                    mathResult.textContent = 'Incorrect. Try again!';
+                    mathResult.className = 'math-result math-error';
+                    
+                    // Shake the input to indicate error
+                    mathAnswer.classList.add('shake');
+                    setTimeout(() => {
+                        mathAnswer.classList.remove('shake');
+                    }, 500);
+                }
+            }
+            
+            function createConfetti() {
+                const confettiCount = 100;
+                const container = document.querySelector('.modal-content');
+                
+                for (let i = 0; i < confettiCount; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.top = -20 + 'px';
+                    confetti.style.backgroundColor = getRandomColor();
+                    confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                    confetti.style.width = Math.random() * 10 + 5 + 'px';
+                    confetti.style.height = Math.random() * 10 + 5 + 'px';
+                    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                    confetti.style.opacity = Math.random() * 0.5 + 0.5;
+                    
+                    // Set animation
+                    confetti.style.animation = `fall ${Math.random() * 3 + 2}s linear forwards`;
+                    
+                    container.appendChild(confetti);
+                    
+                    // Remove after animation completes
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 5000);
+                }
+            }
+            
+            function getRandomColor() {
+                const colors = ['#8e44ad', '#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#1abc9c'];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+            
+            function loadAchievements() {
+                // Fetch current achievements from server
+                fetch('/sync_progress', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({}) // Empty request to get current data
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Get server-side achievements
+                    let serverAchievements = {};
+                    try {
+                        if (data && data.unlocked_badges) {
+                            serverAchievements = JSON.parse(data.unlocked_badges);
+                        }
+                    } catch (e) {
+                        console.error('Error parsing server achievements:', e);
+                    }
+                    
+                    // Get local achievements
+                    const achievements = JSON.parse(localStorage.getItem('achievements') || '{}');
+                    const previousAchievements = JSON.parse(localStorage.getItem('previous_achievements') || '{}');
+                    
+                    // Merge server and local achievements (server takes precedence)
+                    const mergedAchievements = {...achievements, ...serverAchievements};
+                    
+                    // Update local storage with merged achievements
+                    localStorage.setItem('achievements', JSON.stringify(mergedAchievements));
+                    
+                    // Update UI based on merged achievements
+                    updateAchievementUI('mathWizard', 'math-wizard-badge', previousAchievements, mergedAchievements);
+                    updateAchievementUI('chatbotMaster', 'chatbot-master-badge', previousAchievements, mergedAchievements);
+                    updateAchievementUI('quizChampion', 'quiz-champion-badge', previousAchievements, mergedAchievements);
+                    updateAchievementUI('explorer', 'explorer-badge', previousAchievements, mergedAchievements);
+                    updateAchievementUI('scienceGenius', 'science-genius-badge', previousAchievements, mergedAchievements);
+                    updateAchievementUI('mathMaster', 'math-master-badge', previousAchievements, mergedAchievements);
+                    
+                    // Update previous achievements to current state
+                    localStorage.setItem('previous_achievements', JSON.stringify(mergedAchievements));
+                    
+                    // Sync back to server if there were local achievements not on server
+                    if (Object.keys(achievements).length > Object.keys(serverAchievements).length) {
+                        syncWithServer({
+                            unlocked_badges: JSON.stringify(mergedAchievements)
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading achievements from server:', error);
+                    
+                    // Fallback to local achievements if server fails
+                    const achievements = JSON.parse(localStorage.getItem('achievements') || '{}');
+                    const previousAchievements = JSON.parse(localStorage.getItem('previous_achievements') || '{}');
+                    
+                    updateAchievementUI('mathWizard', 'math-wizard-badge', previousAchievements, achievements);
+                    updateAchievementUI('chatbotMaster', 'chatbot-master-badge', previousAchievements, achievements);
+                    updateAchievementUI('quizChampion', 'quiz-champion-badge', previousAchievements, achievements);
+                    updateAchievementUI('explorer', 'explorer-badge', previousAchievements, achievements);
+                    updateAchievementUI('scienceGenius', 'science-genius-badge', previousAchievements, achievements);
+                    updateAchievementUI('mathMaster', 'math-master-badge', previousAchievements, achievements);
+                    
+                    // Update previous achievements to current state
+                    localStorage.setItem('previous_achievements', JSON.stringify(achievements));
+                });
+            }
+            
+            function updateAchievementUI(achievementKey, badgeId, previousAchievements, currentAchievements) {
+                const badgeElement = document.getElementById(badgeId);
+                if (!badgeElement) return;
+                
+                // Remove any existing arrow indicator
+                const existingArrow = badgeElement.querySelector('.arrow-indicator');
+                if (existingArrow) {
+                    existingArrow.remove();
+                }
+                
+                if (currentAchievements[achievementKey]) {
+                    // Mark as completed
+                    badgeElement.classList.add('completed');
+                    
+                    // Check if this is newly earned
+                    if (!previousAchievements[achievementKey]) {
+                        const achievementName = badgeElement.querySelector('.badge-name').textContent;
+                        showAchievementNotification(achievementName, `You've unlocked the ${achievementName} achievement!`);
+                    }
+                } else {
+                    // Add arrow indicator for pending achievement
+                    const arrowIndicator = document.createElement('div');
+                    arrowIndicator.className = 'arrow-indicator';
+                    arrowIndicator.innerHTML = '<i class="fas fa-arrow-right"></i>';
+                    badgeElement.appendChild(arrowIndicator);
+                }
+            }
+            
+            function showAchievementNotification(title, message) {
+                const toast = document.getElementById('achievement-toast');
+                const toastMessage = document.getElementById('achievement-toast-message');
+                toastMessage.textContent = message;
+                
+                toast.classList.add('show');
+                
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 5000);
+            }
+            
+            function sendAchievementEmail(achievementName) {
+                // Send a request to server to send congratulatory email
+                fetch('/send_achievement_email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        achievement: achievementName
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Achievement email sent:', data);
+                })
+                .catch(error => {
+                    console.error('Error sending achievement email:', error);
+                });
+            }
+            
+            // Function to sync data with server
+            function syncWithServer(data) {
+                console.log("Syncing data with server:", data);
+                
+                return fetch('/sync_progress', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Data synced with server:', data);
+                    // If we received server data, update local storage
+                    if (data.daily_notes) {
+                        try {
+                            const serverNotes = JSON.parse(data.daily_notes);
+                            if (Array.isArray(serverNotes)) {
+                                dailyNotes = serverNotes;
+                                localStorage.setItem('dailyNotes', JSON.stringify(dailyNotes));
+                            }
+                        } catch (e) {
+                            console.error("Error parsing server notes:", e);
+                        }
+                    }
+                    return data;
+                })
+                .catch(error => {
+                    console.error('Error syncing data with server:', error);
+                    throw error; // Re-throw for caller to handle
+                });
+            }
+            
+            // Daily Notes functionality
+            function loadDailyNotes() {
+                dailyNotesList.innerHTML = '';
+                
+                // Ensure dailyNotes is initialized
+                if (!Array.isArray(dailyNotes)) {
+                    dailyNotes = [];
+                    localStorage.setItem('dailyNotes', JSON.stringify(dailyNotes));
+                }
+                
+                if (dailyNotes.length === 0) {
+                    dailyNotesList.innerHTML = '<p class="empty-message">No notes yet. Start tracking your learning journey!</p>';
+                    return;
+                }
+                
+                // Sort notes by date (newest first)
+                dailyNotes.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                // Get current filter
+                const activeFilter = document.querySelector('.filter-option.active');
+                if (!activeFilter) return;
+                
+                const filterValue = activeFilter.dataset.filter;
+                
+                // Filter notes based on current filter
+                const filteredNotes = dailyNotes.filter(note => {
+                    if (filterValue === 'all') return true;
+                    if (filterValue === 'today') {
+                        const today = new Date().toISOString().split('T')[0];
+                        const noteDate = new Date(note.date).toISOString().split('T')[0];
+                        return noteDate === today;
+                    }
+                    if (filterValue === 'week') {
+                        const weekAgo = new Date();
+                        weekAgo.setDate(weekAgo.getDate() - 7);
+                        return new Date(note.date) >= weekAgo;
+                    }
+                    return note.tags && note.tags.includes(filterValue);
+                });
+                
+                if (filteredNotes.length === 0) {
+                    dailyNotesList.innerHTML = `<p class="empty-message">No notes found with the current filter "${filterValue}".</p>`;
+                    return;
+                }
+                
+                filteredNotes.forEach((note, index) => {
+                    const noteElement = document.createElement('div');
+                    noteElement.className = 'daily-note';
+                    
+                    // Prepare tags HTML if tags exist
+                    let tagsHTML = '';
+                    if (note.tags && note.tags.length > 0) {
+                        tagsHTML = '<div class="daily-note-tag-list">' + 
+                            note.tags.map(tag => `<span class="daily-note-tag-item">${tag}</span>`).join('') +
+                            '</div>';
+                    }
+                    
+                    noteElement.innerHTML = `
+                        <div class="daily-note-date">${formatNoteDate(note.date)}</div>
+                        <div class="daily-note-content">${note.content}</div>
+                        ${tagsHTML}
+                        <button class="daily-note-delete" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                    dailyNotesList.appendChild(noteElement);
+                });
+                
+                // Add event listeners to delete buttons
+                document.querySelectorAll('.daily-note-delete').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const index = parseInt(this.dataset.index);
+                        deleteNote(index);
+                    });
+                });
+            }
+            
+            function saveNote() {
+                const content = dailyNoteInput.value.trim();
+                if (!content) return;
+                
+                // Get selected tags
+                const selectedTags = [];
+                document.querySelectorAll('.daily-note-tag.selected').forEach(tag => {
+                    selectedTags.push(tag.dataset.tag);
+                });
+                
+                const today = new Date();
+                const note = {
+                    date: today.toISOString(),
+                    content: content,
+                    tags: selectedTags
+                };
+                
+                // Ensure dailyNotes is initialized as an array
+                if (!Array.isArray(dailyNotes)) {
+                    dailyNotes = [];
+                }
+                
+                dailyNotes.push(note);
+                localStorage.setItem('dailyNotes', JSON.stringify(dailyNotes));
+                
+                // Sync with server
+                try {
+                    syncWithServer({
+                        daily_notes: JSON.stringify(dailyNotes)
+                    });
+                } catch (error) {
+                    console.error("Error syncing notes with server:", error);
+                    // Continue with local operations despite sync error
+                }
+                
+                // Clear input
+                dailyNoteInput.value = '';
+                document.querySelectorAll('.daily-note-tag.selected').forEach(tag => {
+                    tag.classList.remove('selected');
+                });
+                document.getElementById('chars-left').textContent = '500';
+                
+                // Update UI
+                loadDailyNotes();
+                
+                // Record a contribution
+                addContribution();
+                
+                // Show success message
+                showNotification('Note saved successfully!');
+            }
+            
+            function deleteNote(index) {
+                if (confirm('Are you sure you want to delete this note?')) {
+                    dailyNotes.splice(index, 1);
+                    localStorage.setItem('dailyNotes', JSON.stringify(dailyNotes));
+                    
+                    // Sync with server
+                    syncWithServer({
+                        daily_notes: JSON.stringify(dailyNotes)
+                    });
+                    
+                    loadDailyNotes();
+                    showNotification('Note deleted successfully!');
+                }
+            }
+            
+            function formatNoteDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', { 
+                    weekday: 'short', 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+            
+            function showNotification(message) {
+                const toast = document.createElement('div');
+                toast.className = 'achievement-toast';
+                toast.innerHTML = `
+                    <div class="achievement-toast-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="achievement-toast-content">
+                        <div class="achievement-toast-message">${message}</div>
+                    </div>
+                    <button class="achievement-toast-close">&times;</button>
+                `;
+                
+                document.body.appendChild(toast);
+                
+                // Show the toast
+                setTimeout(() => {
+                    toast.classList.add('show');
+                }, 10);
+                
+                // Add event listener to close button
+                toast.querySelector('.achievement-toast-close').addEventListener('click', () => {
+                    toast.classList.remove('show');
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 500);
+                });
+                
+                // Auto hide after 3 seconds
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 500);
+                }, 3000);
+            }
+            
+            // Event listeners for daily notes
+            if (saveNoteBtn) {
+                saveNoteBtn.addEventListener('click', saveNote);
+            }
+            
+            if (dailyNoteInput) {
+                dailyNoteInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && e.ctrlKey) {
+                        saveNote();
+                    }
+                });
+                
+                // Character counter
+                dailyNoteInput.addEventListener('input', function() {
+                    const maxLength = 500;
+                    const currentLength = this.value.length;
+                    const charsLeft = maxLength - currentLength;
+                    
+                    document.getElementById('chars-left').textContent = charsLeft;
+                    
+                    if (charsLeft < 0) {
+                        document.getElementById('chars-left').classList.add('text-danger');
+                    } else {
+                        document.getElementById('chars-left').classList.remove('text-danger');
+                    }
+                });
+            }
+            
+            // Add event listeners to tags
+            document.querySelectorAll('.daily-note-tag').forEach(tag => {
+                tag.addEventListener('click', function() {
+                    this.classList.toggle('selected');
+                });
+            });
+            
+            // Add event listeners to filter options
+            const filterOptions = document.querySelectorAll('.filter-option');
+            if (filterOptions.length > 0) {
+                filterOptions.forEach(option => {
+                    option.addEventListener('click', function() {
+                        document.querySelectorAll('.filter-option').forEach(opt => {
+                            opt.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                        loadDailyNotes();
+                    });
+                });
+            }
+            
+            // Live date and time
+            function updateDateTime() {
+                const now = new Date();
+                const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+                
+                document.getElementById('current-date').textContent = now.toLocaleDateString(undefined, dateOptions);
+                document.getElementById('current-time').textContent = now.toLocaleTimeString(undefined, timeOptions);
+                
+                // Update every second
+                setTimeout(updateDateTime, 1000);
+            }
+            
+            // Start the clock
+            updateDateTime();
+        });
+    </script>
+
+    <!-- Add this before the closing body tag -->
+    <div id="math-challenge-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-header">
+                <i class="fas fa-calculator modal-icon"></i>
+                <h2>Math Wizard Challenge</h2>
+            </div>
+            <p class="modal-description">Solve this math problem to earn the Math Wizard achievement:</p>
+            <div id="math-question" class="math-question" data-answer="">
+                <!-- Question will be inserted here -->
+            </div>
+            <div class="math-answer">
+                <input type="number" id="math-answer" placeholder="Enter your answer">
+                <button id="check-answer">Check Answer</button>
+            </div>
+            <div id="math-result" class="math-result"></div>
+        </div>
+    </div>
+
+    <!-- Achievement notification toast -->
+    <div class="achievement-toast" id="achievement-toast">
+        <div class="achievement-toast-icon">
+            <i class="fas fa-trophy"></i>
+        </div>
+        <div class="achievement-toast-content">
+            <div class="achievement-toast-title">Achievement Unlocked!</div>
+            <div class="achievement-toast-message" id="achievement-toast-message"></div>
+        </div>
+        <button class="achievement-toast-close" id="close-toast">&times;</button>
+    </div>
+</body>
+</html>

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Educational Images - Anime Educational Chatbot</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #8e44ad;
+            --primary-light: #9b59b6;
+            --secondary-color: #3498db;
+            --accent-color: #f1c40f;
+            --text-color: #333;
+            --light-bg: #f9f9f9;
+            --white: #ffffff;
+            --border-radius: 12px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: url("{{ url_for('static', filename='background.jpg') }}") no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+            flex: 1;
+        }
+        
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .back-button {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .main-content {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .form-section, .result-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-title {
+            font-size: 22px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 16px;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(142, 68, 173, 0.1);
+        }
+        
+        .generate-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .generate-btn:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(142, 68, 173, 0.2);
+        }
+        
+        .generate-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .image-result {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .generated-image {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            object-fit: contain;
+        }
+        
+        .image-description {
+            background-color: var(--light-bg);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            font-style: italic;
+            max-width: 800px;
+            line-height: 1.5;
+        }
+        
+        .alternate-images {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .alt-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 8px;
+            cursor: pointer;
+            object-fit: cover;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+        
+        .alt-image:hover {
+            transform: scale(1.05);
+            border-color: var(--primary-color);
+        }
+        
+        .error-message {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .error-message i {
+            font-size: 18px;
+        }
+        
+        .example-prompts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .example-prompt {
+            background-color: rgba(142, 68, 173, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+        }
+        
+        .example-prompt:hover {
+            background-color: rgba(142, 68, 173, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .result-section {
+            display: none;
+        }
+        
+        .result-section.active {
+            display: flex;
+        }
+        
+        .history-section {
+            margin-top: 30px;
+        }
+        
+        .history-title {
+            font-size: 22px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .history-item {
+            background-color: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        
+        .history-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .history-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        
+        .history-details {
+            padding: 15px;
+        }
+        
+        .history-prompt {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .history-date {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .history-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="{{ url_for('chat_page') }}" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1>Create Educational Images</h1>
+            <p>Generate kid-friendly educational images for learning</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="form-section">
+                <h2 class="form-title">Image Generator</h2>
+                
+                <div class="form-group">
+                    <label for="image-prompt">What would you like to see?</label>
+                    <input type="text" id="image-prompt" placeholder="Describe the educational image you want to create..." maxlength="200">
+                    
+                    <div class="example-prompts">
+                        <div class="example-prompt">Solar system with planets</div>
+                        <div class="example-prompt">Water cycle diagram</div>
+                        <div class="example-prompt">Dinosaur in natural habitat</div>
+                        <div class="example-prompt">Cell structure with labeled parts</div>
+                        <div class="example-prompt">Ancient Egyptian pyramid construction</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="image-style">Art Style</label>
+                    <select id="image-style">
+                        <option value="realistic">Realistic</option>
+                        <option value="cartoon">Cartoon</option>
+                        <option value="anime">Anime</option>
+                        <option value="watercolor">Watercolor painting</option>
+                        <option value="3d-render">3D Render</option>
+                        <option value="diagram">Educational Diagram</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="image-category">Educational Category</label>
+                    <select id="image-category">
+                        <option value="science">Science</option>
+                        <option value="history">History</option>
+                        <option value="geography">Geography</option>
+                        <option value="mathematics">Mathematics</option>
+                        <option value="biology">Biology</option>
+                        <option value="astronomy">Astronomy</option>
+                        <option value="art">Art & Culture</option>
+                        <option value="technology">Technology</option>
+                    </select>
+                </div>
+                
+                <button id="generate-btn" class="generate-btn">
+                    <i class="fas fa-magic"></i> Generate Image
+                </button>
+                
+                <div id="error-container" style="display: none;" class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="error-message">Error message will appear here</span>
+                </div>
+            </div>
+            
+            <div id="result-section" class="result-section">
+                <h2 class="form-title">Generated Image</h2>
+                
+                <div class="image-result">
+                    <img id="generated-image" class="generated-image" src="" alt="Generated educational image">
+                    <p id="image-description" class="image-description"></p>
+                </div>
+                
+                <div id="alternate-images" class="alternate-images">
+                    <!-- Alternate images will be added here -->
+                </div>
+            </div>
+            
+            <div class="history-section" style="display: none;">
+                <h2 class="history-title">Your Image Creation History</h2>
+                
+                <div class="history-grid">
+                    <!-- History items will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const promptInput = document.getElementById('image-prompt');
+            const styleSelect = document.getElementById('image-style');
+            const categorySelect = document.getElementById('image-category');
+            const generateBtn = document.getElementById('generate-btn');
+            const errorContainer = document.getElementById('error-container');
+            const errorMessage = document.getElementById('error-message');
+            const resultSection = document.getElementById('result-section');
+            const generatedImage = document.getElementById('generated-image');
+            const imageDescription = document.getElementById('image-description');
+            const alternateImages = document.getElementById('alternate-images');
+            
+            // Handle example prompt clicks
+            document.querySelectorAll('.example-prompt').forEach(prompt => {
+                prompt.addEventListener('click', function() {
+                    promptInput.value = this.textContent;
+                    promptInput.focus();
+                });
+            });
+            
+            // Generate image when button is clicked
+            generateBtn.addEventListener('click', function() {
+                const prompt = promptInput.value.trim();
+                const style = styleSelect.value;
+                const category = categorySelect.value;
+                
+                if (!prompt) {
+                    showError('Please enter a description of the image you want to create.');
+                    return;
+                }
+                
+                // Start loading state
+                generateBtn.disabled = true;
+                generateBtn.innerHTML = '<span class="spinner"></span> Generating...';
+                errorContainer.style.display = 'none';
+                
+                // Call the API to generate the image
+                fetch('/create_image', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        style: style,
+                        category: category
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Reset button state
+                    generateBtn.disabled = false;
+                    generateBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Image';
+                    
+                    if (data.error) {
+                        showError(data.error);
+                        return;
+                    }
+                    
+                    // Display the generated image
+                    generatedImage.src = data.image_url;
+                    generatedImage.alt = prompt;
+                    
+                    // Display the description
+                    imageDescription.textContent = data.description;
+                    
+                    // Add alternate images if available
+                    alternateImages.innerHTML = '';
+                    if (data.alt_images && data.alt_images.length > 0) {
+                        data.alt_images.forEach(imgUrl => {
+                            const img = document.createElement('img');
+                            img.src = imgUrl;
+                            img.alt = 'Alternative generated image';
+                            img.className = 'alt-image';
+                            img.addEventListener('click', function() {
+                                generatedImage.src = this.src;
+                            });
+                            alternateImages.appendChild(img);
+                        });
+                    }
+                    
+                    // Show the result section
+                    resultSection.classList.add('active');
+                    resultSection.scrollIntoView({ behavior: 'smooth' });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    generateBtn.disabled = false;
+                    generateBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Image';
+                    showError('An error occurred while generating the image. Please try again.');
+                });
+            });
+            
+            // Function to display error messages
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorContainer.style.display = 'flex';
+            }
+            
+            // Handle image error with inline SVG instead of external file
+            generatedImage.addEventListener('error', function() {
+                // Use a data URI with a simple SVG as fallback
+                this.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f8f8f8'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='16' text-anchor='middle' fill='%23888888'%3EImage not available%3C/text%3E%3C/svg%3E";
+                this.alt = "Error loading image";
+                showError("There was a problem loading the generated image. Please try again with a different prompt.");
+            });
+        });
+    </script>
+</body>
+</html> 

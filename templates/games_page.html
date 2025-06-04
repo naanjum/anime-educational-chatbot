@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educational Games - Anime Educational Chatbot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background: url("{{ url_for('static', filename='background.jpg') }}") no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+        .game-container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px auto;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.3);
+        }
+        h1 {
+            font-size: 36px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        button {
+            background-color: #ffcc00;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #ffaa00;
+            transform: scale(1.1);
+        }
+        input {
+            padding: 8px;
+            font-size: 16px;
+            width: 80%;
+            border-radius: 5px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Educational Games 🎮</h1>
+
+    <!-- Math Quiz -->
+    <div class="game-container">
+        <h2>Math Challenge</h2>
+        <p id="math-question">Loading question...</p>
+        <input type="number" id="math-answer">
+        <button onclick="checkMathAnswer()">Submit</button>
+        <p id="math-feedback"></p>
+    </div>
+
+    <!-- Science Quiz -->
+    <div class="game-container">
+        <h2>Science Quiz</h2>
+        <p id="science-question">Loading question...</p>
+        <div id="science-buttons"></div>
+        <p id="science-feedback"></p>
+    </div>
+
+    <!-- Word Scramble -->
+    <div class="game-container">
+        <h2>Word Scramble</h2>
+        <p id="scrambled-word">Hint: LCHOOS</p>
+        <input type="text" id="scramble-answer">
+        <button onclick="checkScrambleAnswer()">Submit</button>
+        <p id="scramble-feedback"></p>
+    </div>
+
+    <!-- Memory Match Game -->
+    <div class="game-container">
+        <h2>Memory Match</h2>
+        <p>Find the matching pair!</p>
+        <button onclick="startMemoryGame()">Start Game</button>
+    </div>
+
+    <!-- Hangman (Guess the Word) -->
+    <div class="game-container">
+        <h2>Word Guess Game</h2>
+        <p>Hint: A programming language</p>
+        <input type="text" id="word-guess" placeholder="Enter a letter">
+        <button onclick="checkWordGuess()">Guess</button>
+        <p id="word-feedback"></p>
+    </div>
+
+    <!-- Restart Questions Button -->
+    <button onclick="loadQuestions()">🔄 Load New Questions</button>
+
+    <script>
+        // Load questions when the page loads
+        document.addEventListener("DOMContentLoaded", loadQuestions);
+
+        function loadQuestions() {
+            fetch("/get_random_questions")
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Failed to fetch questions");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById("math-question").innerText = data.math.question;
+                    window.currentMathAnswer = data.math.answer;
+
+                    document.getElementById("science-question").innerText = data.science.question;
+                    const scienceButtons = document.getElementById("science-buttons");
+                    scienceButtons.innerHTML = "";
+
+                    data.science.options.forEach(option => {
+                        let button = document.createElement("button");
+                        button.innerText = option;
+                        button.onclick = () => checkScienceAnswer(option, data.science.answer);
+                        scienceButtons.appendChild(button);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error loading questions:", error);
+                    document.getElementById("math-question").innerText = "⚠️ Error loading question!";
+                    document.getElementById("science-question").innerText = "⚠️ Error loading question!";
+                });
+        }
+
+        function checkMathAnswer() {
+           let answer = document.getElementById("math-answer").value.trim();
+           let feedback = document.getElementById("math-feedback");
+
+            if (!answer) {
+                feedback.innerText = "⚠️ Please enter a number!";
+                feedback.style.color = "yellow";
+                return;
+            }
+
+            if (parseInt(answer) === window.currentMathAnswer) {
+                feedback.innerText = "✅ Correct!";
+                feedback.style.color = "lightgreen";
+            } else {
+                feedback.innerText = "❌ Try again!";
+                feedback.style.color = "red";
+            }
+}
+
+
+        function checkScienceAnswer(selected, correctAnswer) {
+            let feedback = document.getElementById("science-feedback");
+
+            if (selected === correctAnswer) {
+                feedback.innerText = "✅ Correct!";
+                feedback.style.color = "lightgreen";
+            } else {
+                feedback.innerText = "❌ Wrong! Try Again.";
+                feedback.style.color = "red";
+            }
+        }
+
+        function checkScrambleAnswer() {
+            let answer = document.getElementById("scramble-answer").value.toLowerCase();
+            let feedback = document.getElementById("scramble-feedback");
+
+            if (answer === "school") {
+                feedback.innerText = "✅ Correct!";
+                feedback.style.color = "lightgreen";
+            } else {
+                feedback.innerText = "❌ Try again!";
+                feedback.style.color = "red";
+            }
+        }
+
+        function startMemoryGame() {
+            alert("Memory Match Game Starting! Find the matching pairs.");
+        }
+
+        function checkWordGuess() {
+            let letter = document.getElementById("word-guess").value.toLowerCase();
+            let feedback = document.getElementById("word-feedback");
+
+            let correctWord = "python";
+            let guessedLetters = [];
+
+            if (!letter || letter.length !== 1) {
+                feedback.innerText = "⚠️ Enter one letter at a time!";
+                feedback.style.color = "yellow";
+                return;
+            }
+
+            if (correctWord.includes(letter)) {
+                guessedLetters.push(letter);
+                let displayWord = correctWord.split("").map(l => guessedLetters.includes(l) ? l : "_").join(" ");
+                feedback.innerText = `Current word: ${displayWord}`;
+
+                if (!displayWord.includes("_")) {
+                    feedback.innerText += "\n✅ You guessed the word!";
+                    feedback.style.color = "lightgreen";
+                }
+            } else {
+                feedback.innerText = "❌ Wrong letter, try again!";
+                feedback.style.color = "red";
+            }
+        }
+    </script>
+
+</body>
+</html>

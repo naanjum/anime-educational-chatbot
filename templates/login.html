@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- basic meta tags for proper display -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- external stylesheets and icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://kit.fontawesome.com/2efc16a506.js" crossorigin="anonymous"></script>
+    
+    <!-- custom styles for the login page -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <title>Login | Anime Educational Chatbot</title>
+</head>
+<body>
+    <!-- main container for login and register forms -->
+    <div class="container" id="container">
+        <!-- signup form section -->
+        <div class="form-container sign-up">
+            <form action="{{ url_for('register') }}" method="POST">
+                <h1>Register With</h1>
+                <!-- social media icons for login -->
+                <div class="social-icons">
+                    <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
+                    <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
+                    <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+                <hr>
+                <h1>OR</h1>
+                <hr>
+                <span>Fill Out The Following Info For Registration</span>
+                
+                <!-- show error message if any -->
+                {% if error %}
+                <div class="error-message">{{ error }}</div>
+                {% endif %}
+                
+                <!-- registration input fields -->
+                <input type="text" name="name" placeholder="Full Name" required>
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="email" name="email" placeholder="Email" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+                <button type="submit">Sign Up</button>
+            </form>
+        </div>
+
+        <!-- login form section -->
+        <div class="form-container sign-in">
+            <form action="{{ url_for('login') }}" method="POST">
+                <h1>Login With</h1>
+                <!-- social media icons for login -->
+                <div class="social-icons">
+                    <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
+                    <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
+                    <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
+                </div>
+                <hr>
+                <h1>OR</h1>
+                <hr>
+                <span>Login With Your Username & Password</span>
+                
+                <!-- show error message if any -->
+                {% if error %}
+                <div class="error-message">{{ error }}</div>
+                {% endif %}
+                
+                <!-- show flash messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="flash-message {{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                <!-- login input fields -->
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <a href="{{ url_for('forgot_password') }}" class="forgot-password">Forgot password?</a>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+
+        <!-- panel switcher section -->
+        <div class="toggle-container">
+            <div class="toggle">
+                <!-- left panel content -->
+                <div class="toggle-panel toggle-left">
+                    <h1>Welcome Back!</h1>
+                    <p>Provide your personal details to use all features</p>
+                    <button class="hidden" id="login">Sign In</button>
+                </div>
+                <!-- right panel content -->
+                <div class="toggle-panel toggle-right">
+                    <h1>Hello</h1>
+                    <p>Register to use all features in our site</p>
+                    <button class="hidden" id="register">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- javascript for animations -->
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+</body>
+</html> 

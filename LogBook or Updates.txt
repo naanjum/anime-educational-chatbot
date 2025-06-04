@@ -1,0 +1,21 @@
+2/4/2025 - Tried to implement the Modal SignUP with OAuth Google signin but failed as after the user signs in, the model is having trouble   to send it back to the chat page.
+
+2/5/2025 - Successfully allotted a different voice to each character for uniqueness, The only con is that all these files create a   temporary .mp3 file and save it to your system which means it uses up more space.
+	 - Tried to remove the temporary .mp3 files that were being created by replacing the code with the prebuilt voices from the Google TTS API, but it didn't work for some reason.
+   [BUGS]- For everytime i enter the button send, it doesnt refresh the page but keeps on playing a number of audios at the same time making it difficult to understand,
+Solution at the time :  i tried to Use a "playback session ID" to cancel any outdated audio fetch/play attempts if multiple clicks happen.
+	 [BUGS] - Since the audio files are temporary and created on each request, multiple fetches can lead to overlapping audio.
+Solution at the time : i aborted previous fetch requests when a new button press is detected and cleared temporary audio instances ensuring only the latest audio file is played by controlling both request and playback flow.  BOTH THE SOLUTION DIDNT WORK, HAVE TO REMOVE THE TEMPORARY FILES AND REPLACE THEM WITH THE PREBUILT VOICES AT THE LATER STAGE.
+	 - Added a quiz section with 3 various subjects and an MCQ based quiz. (user can add their course details in the future, the function hasn't been added but will be coming soon).
+	 - Enabled chat history until the page refreshes or a new chat has been initiated.
+	 - The temporary .mp3 files get erased after the completion of the audio or when the page is refreshed or a new chat has been initiated.
+2/13/2025 - Added a character and a small siri like icon when replying to users with a moving heartbeat effect.
+	 - Message responses are now displayed between the character and the send button.
+	 - A scrollable chat history window is available for better visibility.
+	 - Fixed the chatbot's response issue, ensuring messages appear correctly and the character animates in sync.
+	 - New Chat Opens in a New Window
+	 - Enables Image and Document Upload for users.
+	 - Used OCR (Optical Character Recognition) to extract text from documents/images.
+	 - Generate MCQs from Extracted Text
+2/14/2025 - Added various characters and images to the project such that it works perfectly.
+2/15/2025 - All temporary files (audio & uploads) are deleted on exit.

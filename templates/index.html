@@ -1,0 +1,186 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Anime Educational Chatbot</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #e6e9f0, #eef1f5);
+            color: #444;
+            text-align: center;
+            padding: 40px;
+        }
+        .chat-container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: auto;
+        }
+        input, button, select {
+            width: 90%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .response-box {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h1>Welcome to the Anime Educational Chatbot!</h1>
+        <input type="text" id="user-message" placeholder="Enter your message">
+        <select id="character-select">
+            <option value="Goku">Goku</option>
+            <option value="Naruto">Naruto</option>
+            <option value="Luffy">Luffy</option>
+        </select>
+        <button id="send-message">Send</button>
+        <button id="new-chat-button">+ New Chat</button>
+        <button id="quiz-button" onclick="window.location.href='/quiz_page'">Take a Quiz</button>
+        <div id="response-box" class="response-box"></div>
+    </div>
+
+    <script>
+        document.getElementById("send-message").addEventListener("click", function () {
+            const message = document.getElementById("user-message").value;
+            const character = document.getElementById("character-select").value;
+
+            fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message, character })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("response-box").innerText = data.response;
+
+                if (data.audio_path) {
+                    const audio = new Audio(data.audio_path);
+                    audio.play();
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        });
+
+        document.getElementById("new-chat-button").addEventListener("click", function () {
+            fetch("/new_chat", { method: "POST" })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("response-box").innerText = "New chat started. Ask your questions!";
+            })
+            .catch(error => console.error("Error:", error));
+        });
+    </script>
+</body>
+</html> -->
+
+
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Educational Chatbot</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #e6e9f0, #eef1f5);
+            color: #444;
+            text-align: center;
+            padding: 40px;
+        }
+        .chat-container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: auto;
+        }
+        input, button {
+            width: 90%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h1>Welcome to the Anime Educational Chatbot!</h1>
+        <input type="text" id="user-message" placeholder="Enter your message">
+        <select id="character-select">
+            <option value="Goku">Goku</option>
+            <option value="Naruto">Naruto</option>
+            <option value="Luffy">Luffy</option>
+        </select>
+        <button id="send-message">Send</button>
+        <button id="new-chat-button">+ New Chat</button>
+        <div id="response-box"></div>
+    </div>
+
+    <script>
+        document.getElementById("send-message").addEventListener("click", function () {
+            const message = document.getElementById("user-message").value;
+            const character = document.getElementById("character-select").value;
+
+            fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message, character })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("response-box").innerText = data.response;
+
+                // Play audio response
+                if (data.audio_path) {
+                    const audio = new Audio(data.audio_path);
+                    audio.play();
+                }
+            });
+        });
+
+        document.getElementById("new-chat-button").addEventListener("click", function () {
+            fetch("/new_chat", { method: "POST" })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("response-box").innerText = data.response;
+                });
+        });
+    </script>
+</body>
+</html> -->

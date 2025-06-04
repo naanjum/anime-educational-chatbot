@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Page - Anime Educational Chatbot</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <style>
+        /* General Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #000000, #023300); /* Black & Green gradient */
+            color: #fff;
+            overflow: hidden;
+        }
+
+        /* Smoke Animation */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Place behind all content */
+            overflow: hidden;
+        }
+
+        .smoke {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(0, 255, 0, 0.3), rgba(0, 8, 255, 0)); /* Green smoke effect */
+            border-radius: 50%;
+            animation: float 10s infinite ease-in-out;
+        }
+
+        /* Keyframes for floating animation */
+        @keyframes float {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 0.7;
+            }
+            50% {
+                transform: translateY(-20px) scale(1.2);
+                opacity: 0.4;
+            }
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 0.7;
+            }
+        }
+
+        /* Quiz Container Styles */
+        .quiz-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            max-width: 800px; /* Increased width */
+            margin: auto;
+            position: relative;
+            z-index: 1; /* Ensure the quiz container is above the background */
+            color: #000; /* Ensure text is visible */
+        }
+
+        .loading-spinner {
+            display: none;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border-left-color: #4CAF50;
+            animation: spin 1s ease infinite;
+            margin: auto;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background: #f2f2f2;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .options-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .options-list li {
+            margin: 5px 0;
+        }
+
+        /* File Upload Section */
+        #file-upload {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        #upload-button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        #upload-button:hover {
+            background-color: #45a049;
+        }
+
+        /* Add styles for random quiz section */
+        .random-quiz-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .random-quiz-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .random-quiz-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .random-quiz-button:hover {
+            background-color: #45a049;
+        }
+
+        /* Add styles for read aloud button */
+        .read-aloud-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+
+        .read-aloud-btn:hover {
+            background-color: #45a049;
+        }
+
+        .audio-controls {
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* Add styles for extracted text display */
+        .extracted-text-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f7f7f7;
+            color: #222;
+            border-radius: 8px;
+            font-size: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        }
+        .download-btn {
+            background-color: #bebd00;
+            color: white;
+            padding: 5px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+        .download-btn:hover {
+            background-color: #a6a500;
+        }
+        .error-message {
+            color: #b30000;
+            background: #ffeaea;
+            border: 1px solid #ffb3b3;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+        .fallback-message {
+            color: #856404;
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Smoke Background -->
+    <div class="background">
+        <!-- Smoke elements will be dynamically added here -->
+    </div>
+
+    <!-- Quiz Container -->
+    <div class="quiz-container">
+        <h1>Quiz Page</h1>
+        
+        <!-- File Upload Section -->
+        <div class="file-upload-section">
+            <input type="file" id="file-upload">
+            <button id="upload-button">Upload & Generate MCQs</button>
+            <div class="loading-spinner" id="loading-spinner"></div>
+        </div>
+
+        <!-- Random Quiz Section -->
+        <div class="random-quiz-section">
+            <h2>Try a Random Quiz</h2>
+            <button class="random-quiz-button" id="random-quiz-button">Generate Random Quiz</button>
+            <div id="random-quiz-container" class="hidden">
+                <table id="random-mcq-output">
+                    <thead>
+                        <tr><th>Question</th><th>Options</th></tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <button type="button" id="submit-random-quiz">Submit Random Quiz</button>
+            </div>
+            <div id="random-quiz-results"></div>
+        </div>
+
+        <!-- Regular Quiz Form -->
+        <form id="quiz-form" class="hidden">
+            <table id="mcq-output">
+                <thead>
+                    <tr><th>Question</th><th>Options</th></tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <button type="submit">Submit Quiz</button>
+        </form>
+        <div id="quiz-results"></div>
+
+        <!-- Extracted Text Section -->
+        <div class="extracted-text-section hidden" id="extracted-text-section">
+            <strong>Extracted Text:</strong><br><pre style='white-space: pre-wrap;'>
+        </div>
+
+        <!-- Error Section -->
+        <div class="error-message hidden" id="quiz-error-section">
+        </div>
+    </div>
+
+    <script>
+        // Function to dynamically add smoke elements to the background
+        function createSmoke() {
+            const background = document.querySelector('.background');
+            const colors = ['rgba(0, 255, 0, 0.3)', 'rgba(0, 255, 0, 0.2)', 'rgba(0, 255, 0, 0.1)']; // Green smoke colors
+
+            for (let i = 0; i < 10; i++) { // Add 10 smoke elements
+                const smoke = document.createElement('div');
+                smoke.classList.add('smoke');
+                smoke.style.width = `${Math.random() * 200 + 100}px`; // Random size between 100px and 300px
+                smoke.style.height = smoke.style.width;
+                smoke.style.left = `${Math.random() * window.innerWidth}px`; // Random horizontal position
+                smoke.style.top = `${Math.random() * window.innerHeight}px`; // Random vertical position
+                smoke.style.animationDuration = `${Math.random() * 10 + 5}s`; // Random animation duration
+                smoke.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]; // Random green smoke color
+
+                background.appendChild(smoke);
+            }
+        }
+
+        // Initialize the smoke background
+        createSmoke();
+
+        // Rest of your existing JavaScript code for the quiz functionality
+        document.getElementById("upload-button").addEventListener("click", function() {
+    const fileInput = document.getElementById("file-upload").files[0];
+
+    if (!fileInput) {
+        alert("Please select a file to upload.");
+        return;
+    }
+
+    document.getElementById("loading-spinner").style.display = "block";
+    let formData = new FormData();
+    formData.append("file", fileInput);
+
+    // Upload File First
+    fetch("/upload", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Upload failed with status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        document.getElementById("loading-spinner").style.display = "none";
+
+        // Show extracted text if available
+        if (data.extracted_text) {
+            extractedTextSection.innerHTML = `<strong>Extracted Text:</strong><br><pre style='white-space: pre-wrap;'>${data.extracted_text}</pre>`;
+            extractedTextSection.classList.remove('hidden');
+            // Add download button
+            extractedTextSection.innerHTML += `<button class='download-btn' onclick='downloadExtractedText()'>Download Extracted Text</button>`;
+        } else {
+            extractedTextSection.classList.add('hidden');
+        }
+
+        // Show error or fallback messages
+        if (data.status === 'error') {
+            errorSection.innerHTML = `<div class='error-message'>${data.error || 'Failed to generate MCQs.'}</div>`;
+        } else if (data.status === 'fallback') {
+            errorSection.innerHTML = `<div class='fallback-message'>${data.error || 'Fallback MCQ generated due to weak content.'}</div>`;
+        } else {
+            errorSection.innerHTML = '';
+        }
+
+        if (data.mcqs && Array.isArray(data.mcqs) && data.mcqs.length > 0) {
+            alert("✅ MCQs generated successfully!");
+            displayMCQs(data.mcqs); // ✅ Send the full array to display function
+        } else {
+            alert("No MCQs were generated.");
+        }
+    })
+    .catch(error => {
+        console.error("Error uploading file:", error);
+        alert("File upload failed. Please try again.");
+    });
+});
+
+function generateMCQs(filePath) {
+    fetch("/upload_pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ file_path: filePath })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("API Response:", data); // 🔍 Debug: Log full response
+
+        if (data.error) {
+            alert("Error generating MCQs: " + data.error);
+            return;
+        }
+
+        if (data.mcqs && Array.isArray(data.mcqs) && data.mcqs.length > 0) {
+            alert("✅ MCQs generated successfully!");
+            displayMCQs(data.mcqs); // ✅ Send the full array to display function
+        } else {
+            alert("No MCQs were generated.");
+        }
+    })
+    .catch(error => {
+        console.error("Error generating MCQs:", error);
+        alert("Failed to generate MCQs.");
+    });
+}
+
+function displayMCQs(mcqs) {
+    let output = document.querySelector("#mcq-output tbody");
+    output.innerHTML = "";  // Clear previous MCQs
+
+    if (!mcqs || mcqs.length === 0) {
+        output.innerHTML = "<tr><td colspan='2'><em>No MCQs generated. Please try again.</em></td></tr>";
+        return;
+    }
+
+    mcqs.forEach((mcq, index) => {
+        let row = document.createElement("tr");
+
+        // Add the question with read aloud button
+        let questionCell = document.createElement("td");
+        questionCell.innerHTML = `
+            <strong>${index + 1}. ${mcq.question || 'Question missing'}</strong>
+            <button class="read-aloud-btn" onclick="readQuestion(${index}, '${mcq.question.replace(/'/g, "\\'")}')">
+                🔊 Read Aloud
+            </button>
+            <div class="audio-controls" id="audio-controls-${index}">
+                <audio id="audio-${index}" controls>
+                    <source src="" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+        `;
+        row.appendChild(questionCell);
+
+        // Add the options
+        let optionsCell = document.createElement("td");
+        if (mcq.options && Array.isArray(mcq.options) && mcq.options.length === 4) {
+            let optionsList = document.createElement("ul");
+            optionsList.className = "options-list";
+
+            mcq.options.forEach((option, i) => {
+                let listItem = document.createElement("li");
+                let label = document.createElement("label");
+                let input = document.createElement("input");
+                input.type = "radio";
+                input.name = `q${index}`;  // Unique name for each question
+                input.value = option;
+                
+                label.appendChild(input);
+                label.appendChild(document.createTextNode(" " + option));
+                listItem.appendChild(label);
+                optionsList.appendChild(listItem);
+            });
+
+            optionsCell.appendChild(optionsList);
+        } else {
+            optionsCell.innerHTML = "<em>Options not available</em>";
+        }
+        row.appendChild(optionsCell);
+
+        // Add the row to the table
+        output.appendChild(row);
+    });
+
+    // Make sure the quiz form is visible
+    document.getElementById("quiz-form").classList.remove("hidden");
+}
+
+        // Handle quiz submission
+    document.getElementById("quiz-form").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const selectedAnswers = {};
+    document.querySelectorAll("input[type='radio']:checked").forEach(input => {
+        const questionNumber = input.name.replace("q", "");
+        selectedAnswers[questionNumber] = input.value;
+    });
+
+    if (Object.keys(selectedAnswers).length === 0) {
+        alert("Please answer at least one question before submitting.");
+        return;
+    }
+
+    fetch("/submit_quiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answers: selectedAnswers })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert("Error: " + data.error);
+            return;
+        }
+
+        const resultsContainer = document.getElementById("quiz-results");
+        resultsContainer.innerHTML = `
+            <h2>Quiz Results</h2>
+            <p>You scored ${data.correct} out of ${data.total}!</p>
+        `;
+    })
+    .catch(error => {
+        console.error("Error submitting quiz:", error);
+        alert("Failed to submit quiz. Please try again.");
+    });
+});
+
+        // Add random quiz functionality
+        document.getElementById("random-quiz-button").addEventListener("click", function() {
+            fetch("/get_random_questions")
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Random Quiz API Response:", data);
+                    if (data.error) {
+                        alert("Error: " + data.error);
+                        return;
+                    }
+                    if (data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
+                        displayRandomMCQs(data.questions);
+                    } else {
+                        alert("No questions received from server.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching random questions:", error);
+                    alert("Failed to fetch random questions.");
+                });
+        });
+
+        function displayRandomMCQs(mcqs) {
+            let output = document.querySelector("#random-mcq-output tbody");
+            output.innerHTML = "";  // Clear previous MCQs
+
+            if (!mcqs || mcqs.length === 0) {
+                output.innerHTML = "<tr><td colspan='2'><em>No questions available. Please try again.</em></td></tr>";
+                return;
+            }
+
+            mcqs.forEach((mcq, index) => {
+                let row = document.createElement("tr");
+
+                // Add the question
+                let questionCell = document.createElement("td");
+                questionCell.innerHTML = `
+                    <strong>${index + 1}. ${mcq.question || 'Question missing'}</strong>
+                `;
+                row.appendChild(questionCell);
+
+                // Add the options
+                let optionsCell = document.createElement("td");
+                if (mcq.options && Array.isArray(mcq.options) && mcq.options.length === 4) {
+                    let optionsList = document.createElement("ul");
+                    optionsList.className = "options-list";
+
+                    mcq.options.forEach((option, i) => {
+                        let listItem = document.createElement("li");
+                        let label = document.createElement("label");
+                        let input = document.createElement("input");
+                        input.type = "radio";
+                        input.name = `random_q${index}`;  // Unique name for each question
+                        input.value = option;
+                        
+                        label.appendChild(input);
+                        label.appendChild(document.createTextNode(" " + option));
+                        listItem.appendChild(label);
+                        optionsList.appendChild(listItem);
+                    });
+
+                    optionsCell.appendChild(optionsList);
+                } else {
+                    optionsCell.innerHTML = "<em>Options not available</em>";
+                }
+                row.appendChild(optionsCell);
+
+                output.appendChild(row);
+            });
+
+            // Show the random quiz container
+            document.getElementById("random-quiz-container").classList.remove("hidden");
+        }
+
+        // Handle random quiz submission
+        document.getElementById("submit-random-quiz").addEventListener("click", function() {
+            const selectedAnswers = {};
+            document.querySelectorAll("input[type='radio']:checked").forEach(input => {
+                const questionNumber = input.name.replace("random_q", "");
+                selectedAnswers[questionNumber] = input.value;
+            });
+
+            if (Object.keys(selectedAnswers).length === 0) {
+                alert("Please answer at least one question before submitting.");
+                return;
+            }
+
+            fetch("/submit_quiz", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ answers: selectedAnswers })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert("Error: " + data.error);
+                    return;
+                }
+
+                const resultsContainer = document.getElementById("random-quiz-results");
+                resultsContainer.innerHTML = `
+                    <h2>Quiz Results</h2>
+                    <p>You scored ${data.correct} out of ${data.total}!</p>
+                `;
+            })
+            .catch(error => {
+                console.error("Error submitting quiz:", error);
+                alert("Failed to submit quiz. Please try again.");
+            });
+        });
+
+        // Add read aloud functionality
+        function readQuestion(index, question) {
+            const audioControls = document.getElementById(`audio-controls-${index}`);
+            const audioElement = document.getElementById(`audio-${index}`);
+            
+            // Show audio controls
+            audioControls.style.display = 'block';
+            
+            // Generate speech for the question
+            fetch('/generate_speech', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    text: question,
+                    character: 'Suzie',
+                    language: 'en'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.audio_path) {
+                    audioElement.src = data.audio_path;
+                    audioElement.play();
+                } else {
+                    alert('Failed to generate speech for the question.');
+                }
+            })
+            .catch(error => {
+                console.error('Error generating speech:', error);
+                alert('Failed to generate speech for the question.');
+            });
+        }
+
+        // Add downloadExtractedText function
+        function downloadExtractedText() {
+            const extractedText = document.querySelector('#extracted-text-section pre').innerText;
+            const blob = new Blob([extractedText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'extracted_text.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+    </script>
+    
+</body>
+</html>
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz Page</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #e6e9f0, #eef1f5);
+            text-align: center;
+            padding: 40px;
+        }
+        .quiz-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: auto;
+        }
+        .hidden {
+            display: none;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Select a Quiz Topic</h1>
+        <select id="quiz-topic">
+            <option value="mathematics">Mathematics</option>
+            <option value="science">Science</option>
+            <option value="geography">Geography</option>
+        </select>
+        <button id="start-quiz">Start Quiz</button>
+
+        <div id="quiz-section" class="hidden">
+            <h2>Quiz Questions</h2>
+            <div id="questions-container"></div>
+            <button id="submit-quiz-button">Submit Quiz</button>
+            <div id="quiz-result" class="hidden"></div>
+        </div>
+
+        <button id="back-to-chatbot" class="hidden">Back to Chatbot</button>
+    </div>
+
+    <script>
+        // Start quiz functionality
+        document.getElementById("start-quiz").addEventListener("click", function () {
+            const topic = document.getElementById("quiz-topic").value;
+
+            fetch("/quiz", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ subject: topic })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const questionsContainer = document.getElementById("questions-container");
+                questionsContainer.innerHTML = '';
+
+                if (data.questions && data.questions.length > 0) {
+                    data.questions.forEach((question, index) => {
+                        const questionBlock = document.createElement("div");
+                        questionBlock.innerHTML = `<p><strong>${index + 1}. ${question.question}</strong></p>`;
+
+                        question.options.forEach(option => {
+                            const optionElement = document.createElement("div");
+                            optionElement.innerHTML = `
+                                <input type="radio" name="question-${index}" value="${option}">
+                                <label>${option}</label>
+                            `;
+                            questionBlock.appendChild(optionElement);
+                        });
+
+                        questionsContainer.appendChild(questionBlock);
+                    });
+
+                    document.getElementById("quiz-section").classList.remove("hidden");
+                } else {
+                    questionsContainer.innerHTML = "<p>No questions available for this topic.</p>";
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching quiz questions:", error);
+            });
+        });
+
+        // Submit quiz functionality
+        document.getElementById("submit-quiz-button").addEventListener("click", function () {
+            const selectedAnswers = {};
+            document.querySelectorAll("input[type='radio']:checked").forEach(input => {
+                selectedAnswers[input.name] = input.value;
+            });
+
+            fetch("/submit_quiz", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ answers: selectedAnswers })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultContainer = document.getElementById("quiz-result");
+                resultContainer.innerText = `You got ${data.correct} out of ${data.total} questions correct!`;
+                resultContainer.classList.remove("hidden");
+
+                // Play the audio feedback
+                if (data.audio_path) {
+                    const audio = new Audio(data.audio_path);
+                    audio.play();
+                }
+
+                // Show the "Back to Chatbot" button
+                document.getElementById("back-to-chatbot").classList.remove("hidden");
+            })
+            .catch(error => {
+                console.error("Error submitting quiz:", error);
+            });
+        });
+
+        // Navigate back to chatbot
+        document.getElementById("back-to-chatbot").addEventListener("click", function () {
+            window.location.href = "/chat_page";
+        });
+    </script>
+</body>
+</html> -->

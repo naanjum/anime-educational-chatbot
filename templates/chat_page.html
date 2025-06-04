@@ -1,0 +1,2309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Educational Chatbot</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile_frames.css') }}">
+
+    <style>
+        /* Base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Nunito', 'Comic Sans MS', sans-serif;
+            background: url("{{ url_for('static', filename='background.jpg') }}") no-repeat center center fixed;
+            background-size: cover;
+            color: #333;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* App Layout */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background-color: #8e44ad;
+            display: flex;
+            flex-direction: column;
+            color: white;
+            height: 100%;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-header h2 {
+            font-size: 24px;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .sidebar-menu {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 25px;
+        }
+        
+        .sidebar-section h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .sidebar-button {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+            text-align: left;
+        }
+        
+        .sidebar-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .sidebar-button i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        
+        .recent-chat {
+            padding: 10px 15px;
+            margin-bottom: 5px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .recent-chat:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .recent-chat-title {
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-right: 10px;
+        }
+        
+        .recent-chat-actions {
+            display: none;
+            gap: 5px;
+        }
+        
+        .recent-chat:hover .recent-chat-actions {
+            display: flex;
+        }
+        
+        .recent-chat-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+        
+        .recent-chat-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .pinned-chat {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-left: 3px solid white;
+        }
+        
+        .sidebar-footer {
+            padding: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        .user-info:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid white;
+        }
+        
+        .user-details {
+            flex: 1;
+        }
+        
+        .user-name {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+        
+        .user-role {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        .user-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .sidebar-button-small {
+            padding: 8px 12px;
+            font-size: 14px;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+            background-color: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+        }
+        
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .chat-header h1 {
+            font-size: 22px;
+            color: #8e44ad;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .selector-container {
+            display: flex;
+            gap: 10px;
+        }
+        
+        select {
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 2px solid #8e44ad;
+            font-size: 14px;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(142, 68, 173, 0.3);
+        }
+        
+        .character-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .character-image {
+            width: 150px;
+            height: 150px;
+            transition: all 0.4s ease-in-out;
+            border-radius: 50%;
+            border: 5px solid #FFF;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .character-image:hover {
+            transform: scale(1.05);
+        }
+        
+        .message-log {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            border-radius: 12px;
+            background-color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        .message-log p {
+            margin: 0;
+            padding: 15px;
+            border-radius: 18px;
+            position: relative;
+            max-width: 80%;
+            line-height: 1.5;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            font-size: 16px;
+        }
+        
+        .message-log p strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+        
+        .message-log p:has(strong:contains('You')) {
+            align-self: flex-end;
+            background-color: #E2F3FF;
+            border-bottom-right-radius: 5px;
+            color: #2D3748;
+        }
+        
+        .message-log p:not(:has(strong:contains('You'))) {
+            align-self: flex-start;
+            background-color: #F6F0FF;
+            border-bottom-left-radius: 5px;
+            color: #2D3748;
+        }
+        
+        .input-area {
+            padding: 10px 0;
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        
+        input#user-message {
+            flex-grow: 1;
+            padding: 15px 20px;
+            border-radius: 30px;
+            border: 2px solid #E2E8F0;
+            font-size: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            background-color: white;
+        }
+        
+        input#user-message:focus {
+            border-color: #8e44ad;
+            box-shadow: 0 0 0 3px rgba(142, 68, 173, 0.2);
+            outline: none;
+        }
+        
+        button#send-message {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #8e44ad;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(142, 68, 173, 0.3);
+        }
+        
+        button#send-message:hover {
+            transform: scale(1.1);
+            background-color: #732d91;
+        }
+        
+        button#send-message i {
+            font-size: 20px;
+        }
+        
+        /* Suggestion chips */
+        .input-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .suggestion-chip {
+            background-color: #333333;
+            color: #ffffff;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #555555;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .suggestion-chip:hover {
+            background-color: #555555;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* MCQ Styles */
+        .mcq-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 800px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            padding: 25px;
+            z-index: 100;
+            animation: fadeInScale 0.3s ease forwards;
+        }
+        
+        .mcq-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .mcq-header h2 {
+            color: #8e44ad;
+            font-size: 24px;
+        }
+        
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #718096;
+            transition: color 0.2s;
+        }
+        
+        .close-button:hover {
+            color: #2D3748;
+        }
+        
+        #mcq-content {
+            margin-bottom: 20px;
+        }
+        
+        .mcq-question {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #F7FAFC;
+            border-radius: 10px;
+            border-left: 4px solid #8e44ad;
+        }
+        
+        .mcq-question h3 {
+            color: #8e44ad;
+            margin-bottom: 10px;
+        }
+        
+        .mcq-question p {
+            font-size: 18px;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .mcq-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .mcq-option {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background-color: white;
+            border: 2px solid #E2E8F0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .mcq-option:hover {
+            border-color: #CBD5E0;
+            background-color: #F7FAFC;
+        }
+        
+        .mcq-option.selected {
+            border-color: #8e44ad;
+            background-color: rgba(142, 68, 173, 0.05);
+        }
+        
+        .mcq-option.correct {
+            border-color: #48BB78;
+            background-color: rgba(72, 187, 120, 0.1);
+        }
+        
+        .mcq-option.incorrect {
+            border-color: #F56565;
+            background-color: rgba(245, 101, 101, 0.1);
+        }
+        
+        .mcq-option input[type="radio"] {
+            margin-right: 10px;
+        }
+        
+        .mcq-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #E2E8F0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        
+        .mcq-input:focus {
+            border-color: #8e44ad;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(142, 68, 173, 0.1);
+        }
+        
+        .loading-indicator {
+            text-align: center;
+            padding: 30px;
+            font-size: 18px;
+            color: #718096;
+        }
+        
+        .loading-indicator:after {
+            content: "...";
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: "."; }
+            40% { content: ".."; }
+            60%, 100% { content: "..."; }
+        }
+        
+        .error-message {
+            background-color: #FEE2E2;
+            color: #B91C1C;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .score-message {
+            text-align: center;
+            padding: 15px;
+            margin-top: 20px;
+            background-color: #E9D8FD;
+            color: #6B46C1;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 18px;
+        }
+        
+        .correct-answer {
+            color: #48BB78;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+        
+        .incorrect-answer {
+            color: #F56565;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+        
+        .mcq-controls {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .primary-button {
+            padding: 10px 20px;
+            background-color: #8e44ad;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .primary-button:hover {
+            background-color: #732d91;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(142, 68, 173, 0.2);
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        .new-message {
+            animation: fadeIn 0.3s ease forwards;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .talking {
+            animation: pulse 1s infinite;
+        }
+        
+        /* Image and Link Styling */
+        .response-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+            max-width: 100%;
+            justify-content: flex-start;
+        }
+        
+        .preview-image {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid rgba(142, 68, 173, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .preview-image:hover {
+            transform: scale(1.05);
+            border-color: #8e44ad;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .response-links {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background-color: rgba(142, 68, 173, 0.1);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .response-links a {
+            color: #8e44ad;
+            text-decoration: none;
+            transition: all 0.2s;
+            margin: 0 5px;
+        }
+        
+        .response-links a:hover {
+            text-decoration: underline;
+            color: #6d348a;
+        }
+        
+        /* Scrollbar customization */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
+        /* Shake animation for errors */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        
+        /* Chat message actions */
+        .message-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message-actions {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            display: none;
+            gap: 10px;
+        }
+        
+        .message-wrapper:hover .message-actions {
+            display: flex;
+        }
+        
+        .action-button {
+            background: none;
+            border: none;
+            color: #8e44ad;
+            cursor: pointer;
+            padding: 5px;
+            font-size: 14px;
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+        
+        .action-button:hover {
+            background-color: white;
+            transform: scale(1.1);
+        }
+        
+        .message-pinned {
+            border-left: 4px solid #8e44ad;
+            background-color: rgba(142, 68, 173, 0.05);
+        }
+        
+        .pinned-icon {
+            position: absolute;
+            left: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8e44ad;
+            font-size: 14px;
+        }
+        
+        /* Quiz options styles */
+        .quiz-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+        
+        .quiz-option-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background-color: #f8f9fa;
+            color: #333;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 250px;
+            text-align: center;
+        }
+        
+        .quiz-option-btn:hover {
+            background-color: rgba(142, 68, 173, 0.1);
+            border-color: #8e44ad;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .quiz-option-btn i {
+            font-size: 20px;
+            color: #8e44ad;
+        }
+        
+        .upload-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .upload-status {
+            font-size: 14px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            text-align: center;
+            width: 100%;
+            min-height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .upload-success {
+            background-color: rgba(72, 187, 120, 0.1);
+            color: #2f855a;
+            border: 1px solid #2f855a;
+        }
+        
+        .upload-error {
+            background-color: rgba(245, 101, 101, 0.1);
+            color: #c53030;
+            border: 1px solid #c53030;
+        }
+        
+        .upload-loading {
+            background-color: rgba(237, 242, 247, 0.8);
+            color: #4a5568;
+            border: 1px solid #cbd5e0;
+        }
+        
+        .file-upload-spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(142, 68, 173, 0.3);
+            border-radius: 50%;
+            border-top-color: #8e44ad;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+            display: inline-block;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Warning message styling */
+        .warning-message {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 10px 0;
+            color: #856404;
+            border-radius: 5px;
+            position: relative;
+            font-weight: 500;
+        }
+
+        .warning-message::before {
+            content: "⚠️";
+            font-size: 18px;
+            margin-right: 10px;
+        }
+
+        .warning-container {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: 90%;
+            max-width: 600px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 8px;
+            padding: 15px 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            animation: slide-down 0.3s ease-out;
+            display: flex;
+            align-items: center;
+        }
+
+        .warning-icon {
+            font-size: 22px;
+            margin-right: 15px;
+            color: #e67e22;
+        }
+
+        .warning-content {
+            flex: 1;
+        }
+
+        .warning-title {
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #e67e22;
+        }
+
+        .warning-text {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .warning-dismiss {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 5px;
+            font-size: 18px;
+            transition: color 0.2s;
+        }
+
+        .warning-dismiss:hover {
+            color: #333;
+        }
+
+        @keyframes slide-down {
+            from {
+                transform: translate(-50%, -100%);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+
+        /* Mark restricted messages */
+        .chat-bot-message.restricted {
+            border-left: 5px solid #e74c3c;
+            background-color: #fdecea;
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .toggle-label input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        
+        .toggle-text {
+            font-size: 14px;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 8px;
+            color: #777;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 180px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Response Styling */
+        .message-content {
+            width: 100%;
+        }
+
+        .message-links {
+            margin-top: 10px;
+            background-color: rgba(142, 68, 173, 0.1);
+            border-radius: 10px;
+            padding: 10px 15px;
+        }
+
+        .message-links h4 {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #8e44ad;
+        }
+
+        .links-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .links-list li {
+            margin-bottom: 5px;
+        }
+
+        .links-list a {
+            display: inline-flex;
+            align-items: center;
+            color: #3498db;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+            padding: 4px 0;
+        }
+
+        .links-list a:hover {
+            color: #8e44ad;
+            text-decoration: underline;
+        }
+
+        .links-list i {
+            margin-right: 5px;
+            font-size: 12px;
+        }
+
+        .message-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .response-image {
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 8px;
+            border: 1px solid rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .response-image:hover {
+            transform: scale(1.05);
+        }
+
+        .error-message {
+            background-color: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Anime Edubot</h2>
+            </div>
+            
+            <div class="sidebar-menu">
+                <button id="new-chat-button" class="sidebar-button">
+                    <i class="fas fa-plus-circle"></i> New Chat
+                </button>
+                
+                <div class="sidebar-section">
+                    <h3>Activities</h3>
+                    <button id="quiz-button" class="sidebar-button">
+                        <i class="fas fa-question-circle"></i> Take a Quiz
+                    </button>
+                    <button id="games-button" class="sidebar-button">
+                        <i class="fas fa-gamepad"></i> Play Games
+                    </button>
+                    <button id="progress-button" class="sidebar-button">
+                        <i class="fas fa-chart-line"></i> Progress Report
+                    </button>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3>Recent Chats</h3>
+                    <div id="recent-chats-list">
+                        <!-- Recent chats will be added here dynamically -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div id="user-profile" class="user-info" onclick="window.location.href='{{ url_for('profile') }}';">
+                    <img src="{{ url_for('static', filename=current_user.profile_pic) }}" alt="User" class="user-avatar">
+                    <div class="user-details">
+                        <div class="user-name">{{ registered_name }}</div>
+                        <div class="user-role">Student</div>
+                    </div>
+                </div>
+                
+                <div class="user-actions">
+                    <button class="sidebar-button sidebar-button-small" onclick="window.location.href='{{ url_for('profile') }}';">
+                        <i class="fas fa-user-cog"></i> Profile
+                    </button>
+                    <button class="sidebar-button sidebar-button-small" onclick="window.location.href='{{ url_for('logout') }}';">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Add this to the controls area in the sidebar -->
+            <div class="control-group">
+                <label for="include-images-checkbox" class="toggle-label">
+                    <input type="checkbox" id="include-images-checkbox" checked>
+                    <span class="toggle-text">Include Images</span>
+                </label>
+                <div class="tooltip">
+                    <i class="fas fa-info-circle"></i>
+                    <span class="tooltiptext">Turn off to improve performance</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h1>Welcome to Anime Educational Chatbot!</h1>
+                    <div class="selector-container">
+                        <select id="character-select">
+                            <option value="Suzie">Suzie</option>
+                            <option value="Lolita">Lolita</option>
+                            <option value="Venom">Venom</option>
+                        </select>
+                        <select id="language-select">
+                            <option value="en">English</option>
+                            <option value="es">Spanish</option>
+                            <option value="fr">French</option>
+                            <option value="de">German</option>
+                            <option value="ja">Japanese</option>
+                            <option value="zh">Chinese</option>
+                            <option value="hi">Hindi</option>
+                            <option value="ar">Arabic</option>
+                            <option value="ru">Russian</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="character-display">
+                    <img src="{{ url_for('static', filename='character1-neutral.png') }}" class="character-image" id="character-image">
+                </div>
+                
+                <div class="message-log" id="message-log"></div>
+                
+                <div class="input-area">
+                    <div class="input-container">
+                        <input type="text" id="user-message" placeholder="Ask me anything..." required>
+                        <button id="send-message">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="input-suggestions">
+                        <div class="suggestion-chip">What is photosynthesis?</div>
+                        <div class="suggestion-chip">Tell me about planets</div>
+                        <div class="suggestion-chip">How do magnets work?</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- MCQ Container (hidden by default) -->
+            <div class="mcq-container" id="mcq-container" style="display: none;">
+                <div class="mcq-header">
+                    <h2>Quiz Time!</h2>
+                    <button id="close-mcq" class="close-button"><i class="fas fa-times"></i></button>
+                </div>
+                
+                <div class="quiz-options">
+                    <button id="generate-random-mcq" class="quiz-option-btn">
+                        <i class="fas fa-random"></i> Random Questions
+                    </button>
+                    <div class="upload-option">
+                        <label for="pdf-upload" class="quiz-option-btn">
+                            <i class="fas fa-file-upload"></i> Upload PDF for Custom Quiz
+                        </label>
+                        <input type="file" id="pdf-upload" accept=".pdf" style="display: none;">
+                        <div class="upload-status" id="upload-status"></div>
+                    </div>
+                </div>
+                
+                <div id="mcq-content"></div>
+                <div class="mcq-controls">
+                    <button id="mcq-next" class="primary-button">Next Question</button>
+                    <button id="mcq-submit" class="primary-button">Submit Answers</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Console logging for debugging
+        console.log("Chat page loading...");
+        
+        let registeredUser = "{{ registered_name }}";
+        console.log("Registered user: " + registeredUser);
+        
+        // Global variables
+        let chatHistory = [];
+        let isTyping = false;
+        let currentAudio = null;
+        let currentCharacter = "Suzie";
+
+        // Character data
+        const characterData = {
+            "Suzie": {
+                name: "Suzie",
+                neutral: "{{ url_for('static', filename='characters/suzie_neutral.png') }}",
+                talking: "{{ url_for('static', filename='characters/suzie_talking.png') }}"
+            },
+            "Hiro": {
+                name: "Hiro",
+                neutral: "{{ url_for('static', filename='characters/hiro_neutral.png') }}",
+                talking: "{{ url_for('static', filename='characters/hiro_talking.png') }}"
+            },
+            "Lolita": {
+                name: "Lolita",
+                neutral: "{{ url_for('static', filename='characters/lolita_neutral.png') }}",
+                talking: "{{ url_for('static', filename='characters/lolita_talking.png') }}"
+            },
+            "Spike": {
+                name: "Spike",
+                neutral: "{{ url_for('static', filename='characters/spike_neutral.png') }}",
+                talking: "{{ url_for('static', filename='characters/spike_talking.png') }}"
+            }
+        };
+
+        let dailyContribution = 0;
+        
+        // Store chat history in local storage
+        function saveChat(message, isUser, id, audio, images) {
+            const timestamp = new Date().toISOString();
+            const day = new Date(timestamp).toLocaleDateString();
+            
+            // Create chat object
+            const chat = {
+                id: id,
+                message: message,
+                isUser: isUser,
+                timestamp: timestamp,
+                character: currentCharacter,
+                audio: audio,
+                images: images
+            };
+            
+            // Find if any chats from today already have a title
+            const todaysChats = chatHistory.filter(c => 
+                new Date(c.timestamp).toLocaleDateString() === day
+            );
+            
+            if (todaysChats.length > 0 && todaysChats[0].title) {
+                // Use existing title
+                chat.title = todaysChats[0].title;
+            } else if (todaysChats.length === 0) {
+                // First message of the day, generate a title based on message
+                let generatedTitle = '';
+                if (isUser) {
+                    // If user message, use first few words
+                    const words = message.split(' ').slice(0, 3).join(' ');
+                    generatedTitle = words.length < 20 ? words : message.substring(0, 20);
+                    generatedTitle += '...';
+                } else {
+                    // If bot message, use date
+                    generatedTitle = `Chat on ${day}`;
+                }
+                chat.title = generatedTitle;
+            }
+            
+            chatHistory.push(chat);
+            localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+            updateRecentChats();
+            updateDailyContribution();
+        }
+        
+        // Load chat history from local storage
+        function loadChatHistory() {
+            const saved = localStorage.getItem('chatHistory');
+            if (saved) {
+                chatHistory = JSON.parse(saved);
+                updateRecentChats();
+                loadDailyContribution();
+            }
+        }
+        
+        // Update recent chats in sidebar
+        function updateRecentChats() {
+            const recentChatsEl = document.getElementById('recent-chats-list');
+            recentChatsEl.innerHTML = '';
+            
+            // Group chats by day
+            const chatsByDay = {};
+            chatHistory.forEach(chat => {
+                const day = new Date(chat.timestamp).toLocaleDateString();
+                if (!chatsByDay[day]) {
+                    chatsByDay[day] = {
+                        chats: [],
+                        title: chat.title || `Chat on ${day}`
+                    };
+                }
+                chatsByDay[day].chats.push(chat);
+            });
+            
+            // Get unique chat days (most recent first)
+            const uniqueDays = Object.keys(chatsByDay).sort((a, b) => {
+                return new Date(b) - new Date(a);
+            }).slice(0, 5);
+            
+            uniqueDays.forEach(day => {
+                const dayData = chatsByDay[day];
+                const chatEl = document.createElement('div');
+                chatEl.className = 'recent-chat';
+                
+                // Create chat title and container for actions
+                const titleContainer = document.createElement('div');
+                titleContainer.className = 'recent-chat-title';
+                titleContainer.innerHTML = `<i class="fas fa-comment"></i> ${dayData.title}`;
+                
+                const actionsContainer = document.createElement('div');
+                actionsContainer.className = 'recent-chat-actions';
+                
+                // Create rename button
+                const renameBtn = document.createElement('button');
+                renameBtn.className = 'recent-chat-btn';
+                renameBtn.innerHTML = '<i class="fas fa-edit"></i>';
+                renameBtn.title = 'Rename chat';
+                renameBtn.onclick = (e) => {
+                    e.stopPropagation(); // Prevent chat loading
+                    const newTitle = prompt('Enter a new name for this chat:', dayData.title);
+                    if (newTitle && newTitle.trim()) {
+                        // Update title in chatHistory
+                        chatHistory.forEach(chat => {
+                            if (new Date(chat.timestamp).toLocaleDateString() === day) {
+                                chat.title = newTitle.trim();
+                            }
+                        });
+                        localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+                        updateRecentChats(); // Refresh list
+                    }
+                };
+                
+                // Create delete button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'recent-chat-btn';
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteBtn.title = 'Delete chat';
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation(); // Prevent chat loading
+                    if (confirm(`Are you sure you want to delete "${dayData.title}"?`)) {
+                        // Remove all chats from this day
+                        chatHistory = chatHistory.filter(chat => 
+                            new Date(chat.timestamp).toLocaleDateString() !== day
+                        );
+                        localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+                        updateRecentChats(); // Refresh list
+                    }
+                };
+                
+                // Add buttons to actions container
+                actionsContainer.appendChild(renameBtn);
+                actionsContainer.appendChild(deleteBtn);
+                
+                // Add containers to chat element
+                chatEl.appendChild(titleContainer);
+                chatEl.appendChild(actionsContainer);
+                
+                // Add click handler to load the chat
+                chatEl.addEventListener('click', () => loadChatFromDay(day));
+                
+                recentChatsEl.appendChild(chatEl);
+            });
+            
+            if (uniqueDays.length === 0) {
+                const noChatEl = document.createElement('div');
+                noChatEl.className = 'recent-chat';
+                noChatEl.innerHTML = '<i class="fas fa-comment-slash"></i> No recent chats';
+                recentChatsEl.appendChild(noChatEl);
+            }
+        }
+        
+        // Load chats from a specific day
+        function loadChatFromDay(day) {
+            const chatsFromDay = chatHistory.filter(chat => 
+                new Date(chat.timestamp).toLocaleDateString() === day
+            );
+            
+            if (chatsFromDay.length === 0) return;
+            
+            // Clear message log
+            const messageLog = document.getElementById('message-log');
+            messageLog.innerHTML = '';
+            
+            // Get the chat title
+            const chatTitle = chatsFromDay[0].title || `Chats from ${day}`;
+            
+            // Add day header
+            const dayHeader = document.createElement('div');
+            dayHeader.className = 'day-header';
+            dayHeader.textContent = chatTitle;
+            dayHeader.dataset.day = day;
+            messageLog.appendChild(dayHeader);
+            
+            // Add messages
+            chatsFromDay.forEach(chat => {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'message-wrapper new-message';
+                
+                if (chat.pinned) {
+                    messageElement.classList.add('message-pinned');
+                }
+                
+                messageElement.dataset.id = chat.id;
+                
+                const messageContent = document.createElement('p');
+                const character = chat.character || "Suzie";
+                
+                if (chat.isUser) {
+                    messageContent.innerHTML = `<strong>You:</strong> ${chat.message}`;
+                } else {
+                    messageContent.innerHTML = `<strong>${characterData[character].name}:</strong> ${chat.message}`;
+                }
+                
+                const messageActions = document.createElement('div');
+                messageActions.className = 'message-actions';
+                messageActions.innerHTML = `
+                    <button class="action-button" onclick="pinMessage(${chat.id})">
+                        <i class="fas fa-thumbtack"></i>
+                    </button>
+                    <button class="action-button" onclick="deleteMessage(${chat.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                
+                messageElement.appendChild(messageContent);
+                messageElement.appendChild(messageActions);
+                
+                if (chat.pinned) {
+                    const pinnedIcon = document.createElement('div');
+                    pinnedIcon.className = 'pinned-icon';
+                    pinnedIcon.innerHTML = '<i class="fas fa-thumbtack"></i>';
+                    messageElement.appendChild(pinnedIcon);
+                }
+                
+                messageLog.appendChild(messageElement);
+            });
+            
+            messageLog.scrollTop = messageLog.scrollHeight;
+        }
+        
+        // Track daily contribution
+        function updateDailyContribution() {
+            const today = new Date().toLocaleDateString();
+            dailyContribution++;
+            localStorage.setItem(`contribution_${today}`, dailyContribution);
+        }
+        
+        // Load daily contribution
+        function loadDailyContribution() {
+            const today = new Date().toLocaleDateString();
+            const saved = localStorage.getItem(`contribution_${today}`);
+            if (saved) {
+                dailyContribution = parseInt(saved);
+            }
+        }
+
+        // Character selection
+        document.getElementById("character-select").addEventListener("change", function() {
+            currentCharacter = this.value;
+            const characterImg = document.getElementById("character-image");
+            characterImg.style.opacity = 0;
+            
+            setTimeout(() => {
+                characterImg.src = characterData[currentCharacter].neutral;
+                characterImg.style.opacity = 1;
+            }, 300);
+        });
+
+        // Language selection
+        document.getElementById("language-select").addEventListener("change", function() {
+            // Clear the chat and display a new greeting in the selected language
+            if (currentAudio) currentAudio.pause();
+            
+            const messageLog = document.getElementById("message-log");
+            // Fade out
+            messageLog.style.opacity = 0;
+            
+            setTimeout(() => {
+                messageLog.innerHTML = "";
+                // Fade back in
+                messageLog.style.opacity = 1;
+                greetUser();
+            }, 300);
+        });
+
+        // Message input event handlers
+        document.getElementById("send-message").addEventListener("click", sendMessage);
+        document.getElementById("user-message").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") sendMessage();
+        });
+
+        // Add focus effect on input
+        document.getElementById("user-message").addEventListener("focus", function() {
+            this.style.boxShadow = "0 0 0 3px rgba(142, 68, 173, 0.2)";
+        });
+        document.getElementById("user-message").addEventListener("blur", function() {
+            this.style.boxShadow = "0 2px 10px rgba(0,0,0,0.05)";
+        });
+
+        // Navigation buttons
+        document.getElementById("new-chat-button").addEventListener("click", function() {
+            const messageLog = document.getElementById("message-log");
+            messageLog.innerHTML = "";
+            greetUser();
+        });
+
+        document.getElementById("quiz-button").addEventListener("click", function() {
+            document.getElementById('mcq-container').style.display = 'block';
+            document.getElementById('mcq-content').innerHTML = '';
+            document.getElementById('upload-status').innerHTML = '';
+            document.getElementById('upload-status').className = 'upload-status';
+            
+            // Show buttons for the first view
+            document.getElementById('mcq-next').style.display = 'none';
+            document.getElementById('mcq-submit').style.display = 'none';
+            document.querySelector('.quiz-options').style.display = 'flex';
+        });
+        
+        // Random MCQ generation
+        document.getElementById("generate-random-mcq").addEventListener("click", function() {
+            document.querySelector('.quiz-options').style.display = 'none';
+            showMCQs();
+        });
+        
+        // PDF upload handler
+        document.getElementById("pdf-upload").addEventListener("change", function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Check if it's a PDF file
+            if (file.type !== 'application/pdf') {
+                document.getElementById('upload-status').innerHTML = 'Please upload a PDF file.';
+                document.getElementById('upload-status').className = 'upload-status upload-error';
+                return;
+            }
+            
+            // Show loading indicator
+            document.getElementById('upload-status').innerHTML = '<span class="file-upload-spinner"></span> Uploading and analyzing PDF...';
+            document.getElementById('upload-status').className = 'upload-status upload-loading';
+            document.querySelector('.quiz-options').style.display = 'none';
+            document.getElementById('mcq-content').innerHTML = '<div class="loading-indicator">Generating questions from your document...</div>';
+            
+            // Create form data and upload
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            // First upload the file
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Then process it to generate MCQs
+                return fetch('/upload_pdf', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ file_path: data.file_path })
+                });
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Success - show the MCQ
+                document.getElementById('upload-status').innerHTML = 'PDF processed successfully!';
+                document.getElementById('upload-status').className = 'upload-status upload-success';
+                
+                // Display the generated MCQ
+                displayPdfMCQ(data.mcq);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('upload-status').innerHTML = `Error: ${error.message || 'Failed to process PDF'}`;
+                document.getElementById('upload-status').className = 'upload-status upload-error';
+                document.getElementById('mcq-content').innerHTML = '<div class="error-message">Failed to generate questions from your document. Please try again or try another PDF.</div>';
+                
+                // Show options again on error
+                setTimeout(() => {
+                    document.querySelector('.quiz-options').style.display = 'flex';
+                }, 3000);
+            });
+        });
+
+        document.getElementById("games-button").addEventListener("click", function() {
+             window.location.href = "{{ url_for('games_page') }}";   
+        });
+
+        document.getElementById("progress-button").addEventListener("click", function() {
+             window.location.href = "{{ url_for('progress') }}";   
+        });
+        
+        // Close MCQ modal
+        document.getElementById("close-mcq").addEventListener("click", function() {
+            document.getElementById("mcq-container").style.display = "none";
+            
+            // Reset the quiz content
+            document.getElementById('mcq-content').innerHTML = '';
+            document.getElementById('mcq-next').textContent = 'Next Question';
+            document.getElementById('upload-status').innerHTML = '';
+            document.getElementById('upload-status').className = 'upload-status';
+            document.getElementById('pdf-upload').value = ''; // Clear the file input
+        });
+
+        // Suggestion chips
+        document.querySelectorAll('.suggestion-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                document.getElementById('user-message').value = this.textContent;
+            });
+        });
+
+        // Display greeting based on language
+        function greetUser() {
+            console.log("Greeting user...");
+            const greetings = {
+                'en': `Hi, how can I help you today, ${registeredUser}?`,
+                'es': `¡Hola! ¿Cómo puedo ayudarte hoy, ${registeredUser}?`,
+                'fr': `Bonjour! Comment puis-je vous aider aujourd'hui, ${registeredUser}?`,
+                'de': `Hallo! Wie kann ich dir heute helfen, ${registeredUser}?`,
+                'ja': `こんにちは！今日はどのようにお手伝いできますか、${registeredUser}さん？`,
+                'zh': `你好！今天我能帮你什么，${registeredUser}？`,
+                'hi': `नमस्ते! आज मैं आपकी कैसे मदद कर सकता हूँ, ${registeredUser}?`,
+                'ar': `مرحبا! كيف يمكنني مساعدتك اليوم, ${registeredUser}؟`,
+                'ru': `Привет! Чем я могу помочь вам сегодня, ${registeredUser}?`
+            };
+            
+            // Get the currently selected language
+            const language = document.getElementById("language-select").value;
+            console.log(`Selected language: ${language}`);
+            
+            // Get appropriate greeting or default to English
+            let greeting = greetings[language] || greetings['en'];
+            console.log(`Greeting text: ${greeting}`);
+            
+            const messageId = Date.now();
+            const messageElement = document.createElement('div');
+            messageElement.className = 'message-wrapper new-message';
+            messageElement.dataset.id = messageId;
+            
+            const messageContent = document.createElement('p');
+            messageContent.innerHTML = `<strong>${characterData[currentCharacter].name}:</strong> ${greeting}`;
+            
+            const messageActions = document.createElement('div');
+            messageActions.className = 'message-actions';
+            messageActions.innerHTML = `
+                <button class="action-button" onclick="pinMessage(${messageId})">
+                    <i class="fas fa-thumbtack"></i>
+                </button>
+                <button class="action-button" onclick="deleteMessage(${messageId})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            
+            messageElement.appendChild(messageContent);
+            messageElement.appendChild(messageActions);
+            
+            document.getElementById("message-log").appendChild(messageElement);
+            
+            // Save this greeting to chat history
+            saveChat(greeting, false, messageId);
+                
+            // Generate audio for the greeting
+            console.log("Requesting audio for greeting...");
+            
+            // Add animation to character image during TTS generation
+            const characterImg = document.getElementById("character-image");
+            characterImg.src = characterData[currentCharacter].talking;
+            characterImg.classList.add('talking');
+            
+            fetch('/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    message: "greeting", 
+                    character: currentCharacter,
+                    language: language
+                })
+            })
+            .then(response => {
+                console.log("Greeting response received");
+                return response.json();
+            })
+            .then(data => {
+                console.log("Greeting data:", data);
+                
+                // Remove talking animation once response received
+                characterImg.classList.remove('talking');
+                characterImg.src = characterData[currentCharacter].neutral;
+                
+                if (data.audio) {
+                    console.log(`Playing greeting audio: ${data.audio}`);
+                    playAudio(data.audio);
+                } else {
+                    console.error("No audio path in greeting response");
+                }
+            })
+            .catch(error => {
+                console.error("Error generating greeting audio:", error);
+                // Remove talking animation on error
+                characterImg.classList.remove('talking');
+                characterImg.src = characterData[currentCharacter].neutral;
+            });
+        }
+
+        // Play audio
+        function playAudio(audioPath) {
+            console.log(`playAudio called with path: ${audioPath}`);
+            
+            if (currentAudio) {
+                console.log("Stopping previous audio");
+                currentAudio.pause();
+                currentAudio = null;
+            }
+            
+            try {
+                currentAudio = new Audio(audioPath);
+                currentAudio.addEventListener('error', function(e) {
+                    console.error(`Audio error: ${e.target.error.code}`, e);
+                    // Try alternative path if there was an error
+                    if (audioPath.startsWith('/')) {
+                        console.log("Trying alternative audio path format...");
+                        const alternativePath = audioPath.substring(1); // remove leading slash
+                        console.log(`Alternative path: ${alternativePath}`);
+                        currentAudio = new Audio(alternativePath);
+                        currentAudio.play().catch(err => console.error("Still failed:", err));
+                    }
+                });
+                
+                console.log("Playing audio...");
+                currentAudio.play().catch(error => {
+                    console.error("Audio playback failed:", error);
+                });
+            } catch(e) {
+                console.error("Error creating audio object:", e);
+            }
+        }
+
+        // Send user message
+        function sendMessage() {
+            if (isTyping) return; // Prevent multiple submissions while processing
+            
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
+
+            const message = document.getElementById("user-message").value.trim();
+            if (!message) {
+                // Shake the input field to indicate error
+                const inputField = document.getElementById("user-message");
+                inputField.classList.add('shake');
+                setTimeout(() => inputField.classList.remove('shake'), 500);
+                return;
+            }
+
+            // Get selected language
+            const language = document.getElementById("language-select").value;
+            console.log(`Sending request with language: ${language}`);
+            
+            // Check if images are enabled
+            const includeImages = document.getElementById("include-images-checkbox") ? 
+                document.getElementById("include-images-checkbox").checked : false;
+            
+            isTyping = true;
+
+            // Add user message with animation
+            const userMessageElement = document.createElement('div');
+            userMessageElement.className = 'message-wrapper new-message';
+            
+            const messageId = Date.now();
+            userMessageElement.dataset.id = messageId;
+            
+            const messageContent = document.createElement('p');
+            messageContent.innerHTML = `<strong>You:</strong> ${message}`;
+            
+            const messageActions = document.createElement('div');
+            messageActions.className = 'message-actions';
+            messageActions.innerHTML = `
+                <button class="action-button" onclick="pinMessage(${messageId})">
+                    <i class="fas fa-thumbtack"></i>
+                </button>
+                <button class="action-button" onclick="deleteMessage(${messageId})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            
+            userMessageElement.appendChild(messageContent);
+            userMessageElement.appendChild(messageActions);
+            
+            document.getElementById("message-log").appendChild(userMessageElement);
+            document.getElementById("message-log").scrollTop = document.getElementById("message-log").scrollHeight;
+            
+            // Save user message to chat history
+            saveChat(message, true, messageId);
+            
+            document.getElementById("user-message").value = "";
+
+            // Add animation to character image
+            const characterImg = document.getElementById("character-image");
+            characterImg.src = characterData[currentCharacter].talking;
+            characterImg.classList.add('talking');
+
+            // Get the last message ID from the conversation if it exists
+            let lastMessageId = null;
+            if (chatHistory.length > 0) {
+                lastMessageId = chatHistory[chatHistory.length - 1].id;
+            }
+
+            // Send API request for response
+            fetch('/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    message: message, 
+                    character: currentCharacter,
+                    language: language,
+                    include_images: includeImages
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Remove typing indicator
+                const typingIndicator = document.getElementById("typing-indicator");
+                if (typingIndicator) typingIndicator.remove();
+
+                // Check for error
+                if (data.error) {
+                    console.error("Error from server:", data.error);
+                    
+                    // Stop talking animation
+                    characterImg.classList.remove('talking');
+                    characterImg.src = characterData[currentCharacter].neutral;
+                    
+                    // Add error message
+                    const errorElement = document.createElement('div');
+                    errorElement.className = 'message-wrapper new-message error-message';
+                    errorElement.innerHTML = `
+                        <p><strong>Error:</strong> ${data.response || "Something went wrong. Please try again."}</p>
+                    `;
+                    document.getElementById("message-log").appendChild(errorElement);
+                    
+                    isTyping = false;
+                    return;
+                }
+                
+                // Add bot response with animation
+                const botMessageElement = document.createElement('div');
+                botMessageElement.className = 'message-wrapper new-message bot-message';
+                
+                const botMessageId = Date.now() + 1; // Ensure unique ID
+                botMessageElement.dataset.id = botMessageId;
+                
+                const messageContentDiv = document.createElement('div');
+                messageContentDiv.className = 'message-content';
+                
+                // Format response text with line breaks
+                let formattedResponse = data.response.replace(/\n/g, '<br>');
+                
+                // Process links if available
+                const linksHtml = data.links && data.links.length ? 
+                    `<div class="message-links">
+                        <h4>Related Links:</h4>
+                        <ul class="links-list">
+                            ${data.links.map(link => 
+                                `<li><a href="${link.url}" target="_blank" rel="noopener noreferrer">
+                                    <i class="fas fa-external-link-alt"></i> ${link.title}
+                                </a></li>`
+                            ).join('')}
+                        </ul>
+                    </div>` : '';
+                
+                // Add images if available and enabled
+                const imagesHtml = (data.images && data.images.length && includeImages) ? 
+                    `<div class="message-images">
+                        ${data.images.map(img => 
+                            `<a href="${img}" target="_blank">
+                                <img src="${img}" alt="Educational image" class="response-image" loading="lazy">
+                            </a>`
+                        ).join('')}
+                    </div>` : '';
+                
+                messageContentDiv.innerHTML = `
+                    <p><strong>${characterData[currentCharacter].name}:</strong> ${formattedResponse}</p>
+                    ${linksHtml}
+                    ${imagesHtml}
+                `;
+                
+                const messageActions = document.createElement('div');
+                messageActions.className = 'message-actions';
+                messageActions.innerHTML = `
+                    <button class="action-button" onclick="pinMessage(${botMessageId})">
+                        <i class="fas fa-thumbtack"></i>
+                    </button>
+                    <button class="action-button" onclick="deleteMessage(${botMessageId})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    ${data.audio ? `<button class="action-button" onclick="playAudio('${data.audio}')">
+                        <i class="fas fa-volume-up"></i>
+                    </button>` : ''}
+                `;
+                
+                botMessageElement.appendChild(messageContentDiv);
+                botMessageElement.appendChild(messageActions);
+                
+                document.getElementById("message-log").appendChild(botMessageElement);
+                document.getElementById("message-log").scrollTop = document.getElementById("message-log").scrollHeight;
+                
+                // Save bot response to chat history
+                saveChat(data.response, false, botMessageId, data.audio, data.images);
+                
+                // Play audio if available
+                if (data.audio) {
+                    console.log(`Playing audio: ${data.audio}`);
+                    playAudio(data.audio);
+                }
+                
+                // Reset typing indicator and character
+                characterImg.classList.remove('talking');
+                characterImg.src = characterData[currentCharacter].neutral;
+                
+                isTyping = false;
+            })
+            .catch(error => {
+                console.error("API call error:", error);
+                
+                // Remove typing animation
+                characterImg.classList.remove('talking');
+                characterImg.src = characterData[currentCharacter].neutral;
+                
+                // Show error message
+                const errorElement = document.createElement('div');
+                errorElement.className = 'message-wrapper new-message error-message';
+                errorElement.innerHTML = `<p><strong>Error:</strong> Failed to get response. Please try again.</p>`;
+                document.getElementById("message-log").appendChild(errorElement);
+                
+                isTyping = false;
+            });
+        }
+
+        // Display MCQs
+        function showMCQs() {
+            // Show loading state
+            const mcqContent = document.getElementById('mcq-content');
+            mcqContent.innerHTML = '<div class="loading-indicator">Generating new questions...</div>';
+            document.getElementById('mcq-container').style.display = 'block';
+            
+            // Fetch MCQs from server with a timestamp to prevent caching
+            const timestamp = new Date().getTime();
+            fetch(`/get_random_questions?t=${timestamp}`)
+                .then(response => response.json())
+                .then(data => {
+                    mcqContent.innerHTML = '';
+                    
+                    // Math question
+                    if (data.math) {
+                        const mathQuestion = document.createElement('div');
+                        mathQuestion.className = 'mcq-question';
+                        mathQuestion.innerHTML = `
+                            <h3>Math Question:</h3>
+                            <p>${data.math.question}</p>
+                            <div class="mcq-options">
+                                <input type="text" id="math-answer" placeholder="Enter your answer" class="mcq-input">
+                            </div>
+                        `;
+                        mcqContent.appendChild(mathQuestion);
+                    }
+                    
+                    // Science question
+                    if (data.science) {
+                        const scienceQuestion = document.createElement('div');
+                        scienceQuestion.className = 'mcq-question';
+                        scienceQuestion.innerHTML = `
+                            <h3>Science Question:</h3>
+                            <p>${data.science.question}</p>
+                            <div class="mcq-options">
+                                ${data.science.options.map((option, index) => `
+                                    <div class="mcq-option" data-value="${option}">
+                                        <input type="radio" name="science" id="science-${index}" value="${option}">
+                                        <label for="science-${index}">${option}</label>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                        mcqContent.appendChild(scienceQuestion);
+                        
+                        // Add click handler for options
+                        document.querySelectorAll('.mcq-option').forEach(option => {
+                            option.addEventListener('click', function() {
+                                // Select the radio button
+                                const radio = this.querySelector('input[type="radio"]');
+                                radio.checked = true;
+                                
+                                // Highlight the selected option
+                                document.querySelectorAll('.mcq-option').forEach(op => op.classList.remove('selected'));
+                                this.classList.add('selected');
+                            });
+                        });
+                    }
+                    
+                    // Show Submit button
+                    document.getElementById('mcq-next').style.display = 'none';
+                    document.getElementById('mcq-submit').style.display = 'inline-block';
+                    document.getElementById('mcq-submit').onclick = () => checkAnswers(data);
+                })
+                .catch(error => {
+                    console.error("Error fetching MCQs:", error);
+                    mcqContent.innerHTML = '<div class="error-message">Failed to load questions. Please try again.</div>';
+                });
+        }
+        
+        // Check MCQ answers
+        function checkAnswers(data) {
+            let correctCount = 0;
+            let totalCount = 0;
+            
+            // Check math answer
+            if (data.math) {
+                totalCount++;
+                const userAnswer = parseFloat(document.getElementById('math-answer').value);
+                const correctAnswer = data.math.answer;
+                
+                if (userAnswer === correctAnswer) {
+                    correctCount++;
+                    document.getElementById('math-answer').style.borderColor = '#48BB78';
+                    document.getElementById('math-answer').parentNode.innerHTML += `
+                        <div class="correct-answer">✓ Correct!</div>
+                    `;
+                } else {
+                    document.getElementById('math-answer').style.borderColor = '#F56565';
+                    document.getElementById('math-answer').parentNode.innerHTML += `
+                        <div class="incorrect-answer">✗ Incorrect. The answer is ${correctAnswer}.</div>
+                    `;
+                }
+            }
+            
+            // Check science answer
+            if (data.science) {
+                totalCount++;
+                const selectedOption = document.querySelector('input[name="science"]:checked');
+                
+                if (selectedOption) {
+                    const userAnswer = selectedOption.value;
+                    const correctAnswer = data.science.answer;
+                    
+                    if (userAnswer === correctAnswer) {
+                        correctCount++;
+                        selectedOption.parentNode.classList.add('correct');
+                        selectedOption.parentNode.innerHTML += `
+                            <div class="correct-answer">✓ Correct!</div>
+                        `;
+                    } else {
+                        selectedOption.parentNode.classList.add('incorrect');
+                        // Find and highlight the correct answer
+                        document.querySelectorAll('.mcq-option').forEach(option => {
+                            if (option.dataset.value === correctAnswer) {
+                                option.classList.add('correct');
+                                option.innerHTML += `
+                                    <div class="correct-answer">✓ This is the correct answer</div>
+                                `;
+                            }
+                        });
+                    }
+                } else {
+                    // No option selected
+                    document.querySelectorAll('.mcq-option').forEach(option => {
+                        if (option.dataset.value === data.science.answer) {
+                            option.classList.add('correct');
+                            option.innerHTML += `
+                                <div class="correct-answer">✓ This is the correct answer</div>
+                            `;
+                        }
+                    });
+                }
+            }
+            
+            // Show score
+            const scoreMessage = `You got ${correctCount} out of ${totalCount} correct!`;
+            const scoreElement = document.createElement('div');
+            scoreElement.className = 'score-message';
+            scoreElement.textContent = scoreMessage;
+            document.getElementById('mcq-content').appendChild(scoreElement);
+            
+            // Change button to "Next"
+            document.getElementById('mcq-submit').style.display = 'none';
+            document.getElementById('mcq-next').style.display = 'inline-block';
+            document.getElementById('mcq-next').onclick = showMCQs;
+        }
+
+        // Display MCQs generated from PDF
+        function displayPdfMCQ(mcq) {
+            if (!mcq) {
+                document.getElementById('mcq-content').innerHTML = '<div class="error-message">Failed to generate questions from your document. The content may not be suitable for quiz generation.</div>';
+                return;
+            }
+            
+            const mcqContent = document.getElementById('mcq-content');
+            mcqContent.innerHTML = '';
+            
+            // Create the question container
+            const questionContainer = document.createElement('div');
+            questionContainer.className = 'mcq-question';
+            
+            // Add the question
+            const questionHeader = document.createElement('h3');
+            questionHeader.textContent = 'Question from your document:';
+            questionContainer.appendChild(questionHeader);
+            
+            const questionText = document.createElement('p');
+            questionText.textContent = mcq.question;
+            questionContainer.appendChild(questionText);
+            
+            // Add options
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'mcq-options';
+            
+            mcq.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'mcq-option';
+                optionDiv.dataset.value = option;
+                
+                const optionLetter = String.fromCharCode(65 + index); // A, B, C, D
+                
+                optionDiv.innerHTML = `
+                    <input type="radio" name="pdf-mcq" id="pdf-option-${index}" value="${option}">
+                    <label for="pdf-option-${index}">${optionLetter}) ${option}</label>
+                `;
+                
+                // Add click handler
+                optionDiv.addEventListener('click', function() {
+                    // Select the radio button
+                    const radio = this.querySelector('input[type="radio"]');
+                    radio.checked = true;
+                    
+                    // Highlight the selected option
+                    document.querySelectorAll('.mcq-option').forEach(op => op.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+                
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            questionContainer.appendChild(optionsContainer);
+            mcqContent.appendChild(questionContainer);
+            
+            // Show submit button
+            document.getElementById('mcq-next').style.display = 'none';
+            document.getElementById('mcq-submit').style.display = 'inline-block';
+            
+            // Set up submit handler for PDF MCQ
+            document.getElementById('mcq-submit').onclick = function() {
+                checkPdfMcqAnswer(mcq);
+            };
+        }
+        
+        // Check answers for PDF MCQs
+        function checkPdfMcqAnswer(mcq) {
+            const selectedOption = document.querySelector('input[name="pdf-mcq"]:checked');
+            const correctAnswer = mcq.correct_answer;
+            
+            if (selectedOption) {
+                const userAnswer = selectedOption.value;
+                
+                if (userAnswer === correctAnswer) {
+                    // Correct answer
+                    selectedOption.parentNode.classList.add('correct');
+                    selectedOption.parentNode.innerHTML += `
+                        <div class="correct-answer">✓ Correct!</div>
+                    `;
+                } else {
+                    // Incorrect answer
+                    selectedOption.parentNode.classList.add('incorrect');
+                    
+                    // Find and highlight the correct answer
+                    document.querySelectorAll('.mcq-option').forEach(option => {
+                        if (option.dataset.value === correctAnswer) {
+                            option.classList.add('correct');
+                            option.innerHTML += `
+                                <div class="correct-answer">✓ This is the correct answer</div>
+                            `;
+                        }
+                    });
+                }
+            } else {
+                // No option selected, show the correct answer
+                document.querySelectorAll('.mcq-option').forEach(option => {
+                    if (option.dataset.value === correctAnswer) {
+                        option.classList.add('correct');
+                        option.innerHTML += `
+                            <div class="correct-answer">✓ This is the correct answer</div>
+                        `;
+                    }
+                });
+            }
+            
+            // Show "Generate More" button
+            document.getElementById('mcq-submit').style.display = 'none';
+            document.getElementById('mcq-next').textContent = 'Generate More Questions';
+            document.getElementById('mcq-next').style.display = 'inline-block';
+            document.getElementById('mcq-next').onclick = function() {
+                document.getElementById('mcq-next').textContent = 'Next Question';
+                document.querySelector('.quiz-options').style.display = 'flex';
+                document.getElementById('mcq-content').innerHTML = '';
+                document.getElementById('upload-status').innerHTML = '';
+                document.getElementById('upload-status').className = 'upload-status';
+                document.getElementById('pdf-upload').value = ''; // Clear the file input
+            };
+        }
+
+        // Pin a message
+        function pinMessage(messageId) {
+            const messageElement = document.querySelector(`.message-wrapper[data-id="${messageId}"]`);
+            if (!messageElement) return;
+            
+            if (messageElement.classList.contains('message-pinned')) {
+                // Unpin the message
+                messageElement.classList.remove('message-pinned');
+                const pinnedIcon = messageElement.querySelector('.pinned-icon');
+                if (pinnedIcon) pinnedIcon.remove();
+                
+                // Update in chat history
+                const chatIndex = chatHistory.findIndex(chat => chat.id === messageId);
+                if (chatIndex !== -1) {
+                    chatHistory[chatIndex].pinned = false;
+                    localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+                }
+            } else {
+                // Pin the message
+                messageElement.classList.add('message-pinned');
+                const pinnedIcon = document.createElement('div');
+                pinnedIcon.className = 'pinned-icon';
+                pinnedIcon.innerHTML = '<i class="fas fa-thumbtack"></i>';
+                messageElement.appendChild(pinnedIcon);
+                
+                // Update in chat history
+                const chatIndex = chatHistory.findIndex(chat => chat.id === messageId);
+                if (chatIndex !== -1) {
+                    chatHistory[chatIndex].pinned = true;
+                    localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+                }
+            }
+        }
+        
+        // Delete a message
+        function deleteMessage(messageId) {
+            const messageElement = document.querySelector(`.message-wrapper[data-id="${messageId}"]`);
+            if (!messageElement) return;
+            
+            // Add fade-out animation
+            messageElement.style.transition = 'all 0.3s ease';
+            messageElement.style.opacity = '0';
+            messageElement.style.height = '0';
+            messageElement.style.marginBottom = '0';
+            messageElement.style.overflow = 'hidden';
+            
+            setTimeout(() => {
+                messageElement.remove();
+                
+                // Remove from chat history
+                chatHistory = chatHistory.filter(chat => chat.id !== messageId);
+                localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+                updateRecentChats();
+            }, 300);
+        }
+
+        // Initialize everything
+        window.addEventListener('DOMContentLoaded', () => {
+            loadChatHistory();
+            greetUser();
+            
+            // Add transition styles
+            document.getElementById("character-image").style.transition = "opacity 0.3s ease";
+            document.getElementById("message-log").style.transition = "opacity 0.3s ease";
+        });
+
+        // Logout button
+        document.getElementById("logout-button").addEventListener("click", function() {
+            // Show confirm dialog
+            if (confirm("Are you sure you want to log out?")) {
+                // Redirect to register page
+                window.location.href = "{{ url_for('register') }}";
+            }
+        });
+    </script>
+    
+</body>
+</html>
