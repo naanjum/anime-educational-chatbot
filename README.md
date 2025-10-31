@@ -99,9 +99,9 @@ Further deployment steps involve building the Docker image and deploying to Fly.
 ```
 
  ## By 
- 1.Shubh Rakesh Nahar
- 2. Nafisha Anjum
- From Troy University
+ ##1.Shubh Rakesh Nahar
+ ##2. Nafisha Anjum
+ ##From Troy University
 
 
 
